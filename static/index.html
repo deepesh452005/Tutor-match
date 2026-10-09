@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutor Match</title>
+  <style>
+    :root {
+      --brand-blue: #315fb8;
+      --brand-blue-dark: #254b98;
+      --brand-blue-soft: #eaf0fb;
+      --ink-blue: #20345b;
+      --muted-blue: #64738b;
+      --line-blue: #dce5f3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh; display: flex; flex-direction: column;
+      margin: 0; font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+      background: linear-gradient(135deg, #f1f5fc 0%, #edf2fa 52%, #f8f9fc 100%);
+      color: #1f2a44;
+    }
+    h1, h2, h3, h4 { line-height: 1.2; letter-spacing: -0.025em; font-weight: 750; }
+    p { line-height: 1.6; }
+    header {
+      background: linear-gradient(90deg, #294f9e 0%, #3768b7 100%);
+      color: white; padding: 16px 24px;
+      display: flex; justify-content: flex-start; align-items: center; gap: 24px;
+      box-shadow: 0 8px 24px rgba(41, 79, 158, 0.18);
+    }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: 0.3px; }
+    #userInfo { display: flex; align-items: center; margin-left: auto; }
+    .header-student-nav { display: flex; align-items: center; justify-content: flex-start; gap: 4px; }
+    button.header-nav-link {
+      margin: 0; padding: 10px 13px; color: rgba(255,255,255,0.82); background: transparent;
+      border-radius: 8px; box-shadow: none; font-size: 14px; white-space: nowrap;
+    }
+    button.header-nav-link:hover { color: #fff; background: rgba(255,255,255,0.12); transform: none; box-shadow: none; }
+    button.header-nav-link.active { color: var(--brand-blue-dark); background: #fff; box-shadow: none; }
+    .header-nav-count { display: inline-block; min-width: 18px; margin-left: 4px; padding: 1px 5px; border-radius: 999px; background: rgba(255,255,255,0.2); font-size: 11px; text-align: center; }
+    button.header-nav-link.active .header-nav-count { color: #fff; background: var(--brand-blue); }
+    main {
+      width: 100%; max-width: 1080px; margin: 30px auto; padding: 0 18px;
+      flex: 1 0 auto;
+    }
+    .box {
+      background: white; border-radius: 18px; padding: 24px;
+      box-shadow: 0 12px 28px rgba(29, 61, 117, 0.08); margin-bottom: 20px;
+    }
+    h2 { margin-top: 0; }
+    label { display: block; font-size: 14px; font-weight: 700; margin: 12px 0 7px; color: #2c3a5b; }
+    input[type=text], input[type=email], input[type=password], input[type=number], input[type=tel],
+    input[type=date], input[type=time], select, textarea {
+      width: 100%; padding: 12px 14px; border: 1px solid #dfe7ff; border-radius: 12px;
+      font-size: 14px; font-family: inherit; background: #f9fbff; color: #1f2a44;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #6d8cff; box-shadow: 0 0 0 4px rgba(109, 140, 255, 0.12);
+    }
+    input[type=date], input[type=time] { display: block; min-height: 44px; color-scheme: light; }
+    input:disabled { background: #eef1f8; color: #6b7a99; cursor: not-allowed; }
+    textarea { resize: vertical; min-height: 70px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 130px; }
+    button {
+      background: linear-gradient(135deg, #4d7dff 0%, #6e9dff 100%);
+      color: white; border: none; padding: 12px 18px;
+      border-radius: 12px; font-size: 14px; cursor: pointer; margin-top: 16px;
+      font-weight: 700; box-shadow: 0 10px 18px rgba(77, 125, 255, 0.22);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 20px rgba(77, 125, 255, 0.24); }
+    button.tab { background: #edf3ff; color: #3b5fc7; margin-top: 0; border-radius: 10px; padding: 10px 18px; box-shadow: none; font-weight: 700; }
+    button.tab.active { background: linear-gradient(135deg, #4d7dff 0%, #6e9dff 100%); color: white; }
+    button.small { margin-top: 8px; padding: 8px 12px; font-size: 13px; }
+    button.ghost { background: #eef3ff; color: #3b5fc7; box-shadow: none; }
+    button.ghost:hover { background: #e7eeff; }
+    button.danger { background: linear-gradient(135deg, #ff6d6d 0%, #ef4d4d 100%); }
+    button.good { background: linear-gradient(135deg, #28b67a 0%, #1ca56f 100%); }
+    button.link {
+      background: none; color: #3b4cca; padding: 0; margin: 14px 0 0;
+      text-decoration: underline; font-size: 13px; box-shadow: none;
+    }
+    button.link:hover { background: none; color: #2f3ea8; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .msg { margin-top: 14px; font-size: 14px; }
+    .msg.error { color: #d94d4d; }
+    .msg.ok { color: #1f8f61; }
+    .muted { color: #5d6f92; font-size: 14px; }
+    .checks { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checks label { font-weight: 500; margin: 0; display: flex; align-items: center; gap: 5px; }
+    .card {
+      border: 1px solid #eaf0ff; border-radius: 16px; padding: 16px; margin-top: 12px;
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .card.paused { opacity: 0.72; background: #fafafa; }
+    .card h3 { margin: 0 0 4px; }
+    .card p { margin: 2px 0; font-size: 14px; }
+    .side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 190px; }
+    .side .actions { width: 100%; text-align: right; }
+    .side .actions textarea { text-align: left; }
+    .badge {
+      background: #dff9eb; color: #1e8e59; padding: 5px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; height: fit-content; display: inline-block;
+    }
+    .badge.pending { background: #fff1d8; color: #ba7d12; }
+    .badge.declined { background: #e8edf8; color: #58657c; }
+    .badge.off { background: #fadbd8; color: #a93226; }
+    .req {
+      border: 1px solid #ebf1ff; border-radius: 14px; padding: 12px; margin-top: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+    .req .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .request-person { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+    .request-person-avatar {
+      width: 44px; height: 44px; flex: 0 0 44px; overflow: hidden; border-radius: 50%;
+      color: #fff; font-size: 15px; font-weight: 800; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .request-person-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .req p { margin: 4px 0; font-size: 14px; }
+    .req .quote { background: #f3f7ff; padding: 8px 10px; border-radius: 8px; font-style: italic; }
+    .req .btns { display: flex; gap: 8px; }
+    #myTrialRequests .req {
+      padding: 16px 18px; margin-top: 12px; border-color: var(--line-blue);
+      border-radius: 12px; background: #fff; box-shadow: 0 5px 14px rgba(37, 75, 152, 0.05);
+    }
+    #myTrialRequests .req .top { align-items: flex-start; }
+    #studentView .request-tutor-link.ghost {
+      display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0;
+      color: var(--ink-blue); background: transparent; border: 0; box-shadow: none;
+      text-align: left; font-size: 15px; font-weight: 800;
+    }
+    #studentView .request-tutor-link.ghost:hover { color: var(--brand-blue); background: transparent; box-shadow: none; transform: none; }
+    .request-details { display: grid; gap: 5px; margin-top: 10px; color: var(--muted-blue); font-size: 13px; }
+    .request-details p { margin: 0; line-height: 1.45; overflow-wrap: anywhere; }
+    .decline-reason-form { margin-top: 10px; padding: 12px; border-radius: 10px; background: #fff8f6; }
+    .request-edit-form { background: #f7f9fc; }
+    .decline-reason-form label { margin-top: 0; }
+    .decline-reason-form textarea { min-height: 76px; }
+    .decline-reason-form .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .request-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .request-actions .wa { margin-top: 0; }
+    .request-group + .request-group { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line-blue); }
+    .request-group h3 { margin: 0 0 4px; color: var(--ink-blue); font-size: 17px; }
+    .request-group > .muted { margin: 0 0 12px; font-size: 13px; }
+    .request-accordion { border: 1px solid var(--line-blue); border-radius: 14px; background: #fff; overflow: hidden; }
+    .request-accordion + .request-accordion { margin-top: 12px; }
+    .request-accordion > summary {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 16px 18px; color: var(--ink-blue); font-weight: 800; cursor: pointer;
+      list-style: none; background: linear-gradient(135deg, #fff 0%, #f7f9fd 100%);
+    }
+    .request-accordion > summary::-webkit-details-marker { display: none; }
+    .request-accordion > summary::after {
+      content: ""; width: 9px; height: 9px; flex: 0 0 9px; margin: -4px 4px 0 2px;
+      border-right: 2px solid var(--brand-blue); border-bottom: 2px solid var(--brand-blue);
+      transform: rotate(45deg); transition: transform 0.18s ease; order: 1;
+    }
+    .request-accordion[open] > summary::after {
+      transform: rotate(225deg); margin-top: 4px;
+    }
+    .request-accordion > summary:focus-visible { outline: 3px solid rgba(77, 125, 255, 0.35); outline-offset: -3px; }
+    .request-accordion-count {
+      min-width: 26px; padding: 3px 8px; border-radius: 999px; background: var(--brand-blue-soft);
+      color: var(--brand-blue-dark); font-size: 12px; text-align: center; margin-left: auto;
+    }
+    .request-accordion-content { padding: 0 16px 16px; }
+    .request-accordion-content > .muted { margin: 0; padding: 12px 2px 2px; }
+    .site-footer {
+      width: 100%; flex: 0 0 auto; margin-top: 44px; padding: 26px 20px;
+      border-top: 1px solid #dce5f3;
+      background: rgba(255,255,255,0.82); color: var(--muted-blue);
+    }
+    .site-footer-inner {
+      width: 100%; max-width: 1180px; margin: 0 auto; display: flex; align-items: center;
+      justify-content: space-between; gap: 18px; flex-wrap: wrap;
+    }
+    .site-footer-brand { color: var(--ink-blue); font-size: 16px; font-weight: 800; }
+    .site-footer p { margin: 5px 0 0; font-size: 13px; }
+    .site-footer-note { font-size: 13px; }
+    .phone { font-weight: 700; font-size: 15px; }
+    a.wa {
+      display: inline-block; background: linear-gradient(135deg, #25d366 0%, #1abf58 100%);
+      color: white; text-decoration: none; padding: 7px 12px; border-radius: 10px; font-size: 13px; margin-top: 6px; font-weight: 700;
+    }
+    a.wa:hover { filter: brightness(0.98); }
+
+    /* Role dashboards */
+    main:has(#studentView:not(.hidden)), main:has(#tutorView:not(.hidden)) {
+      max-width: 1180px;
+      margin-top: 24px;
+    }
+    main:has(#editBox:not(.hidden)) { max-width: 780px; margin-top: 24px; }
+    .dashboard-hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      padding: 28px 32px; margin-bottom: 18px; border-radius: 18px;
+      background: #fff; border: 1px solid #e4ecea; box-shadow: 0 10px 24px rgba(36, 70, 68, 0.07);
+    }
+    .dashboard-hero.student { border-left: 7px solid var(--brand-blue); }
+    .dashboard-hero.tutor { border-left: 7px solid #e4a72f; }
+    .dashboard-hero h2 { margin: 0 0 8px; color: var(--ink-blue); font-size: 26px; }
+    .dashboard-hero p { margin: 0; max-width: 580px; line-height: 1.55; }
+    .hero-mark { flex: 0 0 auto; font-size: 38px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .metric {
+      min-height: 94px; padding: 16px 18px; background: #fff; border: 1px solid #e4ecea;
+      border-radius: 12px; box-shadow: 0 6px 16px rgba(36, 70, 68, 0.05);
+    }
+    .metric strong { display: block; margin-bottom: 5px; color: var(--ink-blue); font-size: 25px; }
+    .metric span { color: var(--muted-blue); font-size: 13px; }
+    .student-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.8fr); gap: 18px; align-items: start; }
+    .student-main, .student-aside, .tutor-main { min-width: 0; }
+    .dashboard-section { padding: 22px; border-radius: 14px; }
+    .dashboard-section h2 { margin-bottom: 6px; font-size: 20px; }
+    .section-kicker { margin: 0 0 14px; color: var(--muted-blue); font-size: 13px; }
+    #results > .muted { padding: 8px 2px; }
+    #studentFindTab { max-width: 1000px; margin: 0 auto; }
+    .find-hero {
+      position: relative; overflow: hidden; margin-bottom: 18px; padding: 28px 30px;
+      border: 1px solid #d9e4f5; border-radius: 18px;
+      background: linear-gradient(115deg, #fff 0%, #f2f6fd 76%, #fff5e3 100%);
+      box-shadow: 0 10px 26px rgba(37, 75, 152, 0.07);
+    }
+    .find-hero::after {
+      content: ""; position: absolute; width: 190px; height: 190px; right: -58px; top: -86px;
+      border-radius: 50%; background: rgba(49, 95, 184, 0.07);
+    }
+    .find-hero .profile-overline { margin-bottom: 8px; }
+    .find-hero h2 { margin: 0 0 8px; color: var(--ink-blue); font-size: 29px; }
+    .find-hero p { max-width: 650px; margin: 0; color: var(--muted-blue); line-height: 1.55; }
+    .find-filters {
+      padding: 22px; border: 1px solid var(--line-blue); border-radius: 16px;
+      background: #fff; box-shadow: 0 8px 22px rgba(37, 75, 152, 0.06);
+    }
+    .find-filters-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      margin-bottom: 15px;
+    }
+    .find-filters-head h3 { margin: 0 0 4px; color: var(--ink-blue); font-size: 17px; }
+    .find-filters-head p { margin: 0; color: var(--muted-blue); font-size: 13px; }
+    .find-filter-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 13px; }
+    .find-filter-grid .field { min-width: 0; }
+    .find-filter-grid label { margin: 0 0 7px; font-size: 12px; }
+    .find-filter-grid select { min-height: 46px; padding: 10px 12px; border-color: #d8e2f2; background: #f9fbff; }
+    .find-filter-actions {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 17px; padding-top: 15px; border-top: 1px solid #edf1f7;
+    }
+    .find-filter-actions > div { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .find-filter-actions button { margin: 0; }
+    .find-search-button { min-width: 164px; }
+    .find-clear-button { padding: 10px 13px; }
+    #searchMsg { margin-top: 0; }
+    .find-results-head {
+      display: flex; align-items: end; justify-content: space-between; gap: 14px;
+      margin: 25px 2px 12px;
+    }
+    .find-results-head h3 { margin: 0 0 4px; color: var(--ink-blue); font-size: 20px; }
+    .find-results-summary { margin: 0; color: var(--muted-blue); font-size: 13px; }
+    .find-results-count {
+      flex: 0 0 auto; padding: 7px 11px; border: 1px solid #dce5f3; border-radius: 999px;
+      background: #fff; color: var(--ink-blue); font-size: 12px; font-weight: 700;
+    }
+    .find-results-count strong { color: var(--brand-blue); }
+    #results .tutor-grid { margin-top: 0; }
+    .find-empty-state {
+      padding: 32px 24px; border: 1px dashed #cbd7eb; border-radius: 16px;
+      background: rgba(255,255,255,0.82); text-align: center;
+    }
+    .find-empty-icon {
+      display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 12px;
+      border-radius: 50%; background: var(--brand-blue-soft); color: var(--brand-blue);
+      font-size: 22px; font-weight: 800;
+    }
+    .find-empty-state h3 { margin: 0 0 7px; color: var(--ink-blue); }
+    .find-empty-state p { max-width: 480px; margin: 0 auto; color: var(--muted-blue); line-height: 1.5; }
+    #studentRequestsTab { max-width: 1000px; margin: 0 auto; }
+    .requests-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .requests-hero-copy { position: relative; z-index: 1; }
+    .requests-hero-actions { position: relative; z-index: 1; flex: 0 0 auto; }
+    .requests-hero-actions button { margin: 0; white-space: nowrap; }
+    .request-summary-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px;
+    }
+    .request-summary-card {
+      display: flex; align-items: center; gap: 12px; min-width: 0; padding: 14px 16px;
+      border: 1px solid var(--line-blue); border-radius: 14px; background: #fff;
+      box-shadow: 0 6px 16px rgba(37, 75, 152, 0.045);
+    }
+    .request-summary-icon {
+      display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px;
+      border-radius: 11px; background: var(--brand-blue-soft); color: var(--brand-blue);
+      font-size: 18px; font-weight: 800;
+    }
+    .request-summary-card strong { display: block; color: var(--ink-blue); font-size: 19px; line-height: 1.1; }
+    .request-summary-card span { display: block; margin-top: 4px; color: var(--muted-blue); font-size: 12px; }
+    .requests-list-heading { margin: 0 0 10px; color: var(--ink-blue); font-size: 19px; }
+    #studentRequestsTab .request-accordion { box-shadow: 0 7px 18px rgba(37, 75, 152, 0.045); }
+    #studentRequestsTab .request-accordion > summary { min-height: 62px; }
+    #studentRequestsTab .request-accordion-content { background: #fbfcff; }
+    #studentRequestsTab .request-accordion-content > .muted { padding-bottom: 10px; }
+    #studentRequestsTab .req { border-color: #e2e9f4; box-shadow: 0 5px 14px rgba(37, 75, 152, 0.045); }
+    #studentRequestsTab .req + .req { margin-top: 12px; }
+    .about-page { max-width: 1000px; margin: 0 auto; }
+    .about-hero { margin-bottom: 18px; }
+    .about-hero h2 { max-width: 640px; }
+    .about-hero p { max-width: 690px; font-size: 15px; }
+    .about-section-heading { margin: 24px 2px 12px; }
+    .about-section-heading h3 { margin: 0 0 5px; color: var(--ink-blue); font-size: 20px; }
+    .about-section-heading p { margin: 0; color: var(--muted-blue); font-size: 14px; }
+    .about-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .about-feature {
+      display: flex; align-items: flex-start; gap: 13px; min-width: 0; padding: 18px;
+      border: 1px solid var(--line-blue); border-radius: 14px; background: #fff;
+      box-shadow: 0 6px 16px rgba(37, 75, 152, 0.045);
+    }
+    .about-feature-icon {
+      display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px;
+      border-radius: 12px; background: var(--brand-blue-soft); color: var(--brand-blue);
+      font-size: 18px; font-weight: 800;
+    }
+    .about-feature h3 { margin: 1px 0 6px; color: var(--ink-blue); font-size: 16px; }
+    .about-feature p { margin: 0; color: var(--muted-blue); font-size: 13px; line-height: 1.6; }
+    /* The subject tiles keep their own white look (they are excluded from the blue button rule) */
+    #studentView button:not(.ghost):not(.subject-tile), #tutorView button:not(.ghost) { background: var(--brand-blue); box-shadow: 0 5px 12px rgba(49, 95, 184, 0.18); }
+    #studentView button:not(.ghost):not(.subject-tile):hover, #tutorView button:not(.ghost):hover { background: var(--brand-blue-dark); }
+    #tutorView button.danger { background: #c85d4c; }
+    #tutorView button.good { background: var(--brand-blue); }
+    .tutor-top { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 18px; margin-bottom: 18px; }
+    .availability-panel { border-top: 4px solid #e4a72f; }
+    .profile-panel { border-top: 4px solid var(--brand-blue); }
+    .inbox-panel { border-top: 4px solid #507bba; }
+    .profile-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+    .profile-fields > .full { grid-column: 1 / -1; }
+    .status-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .status-line h2 { margin: 0; }
+    .req { background: #fff; border-color: #e4ecea; border-radius: 10px; }
+    .req .quote { background: #f3f7f5; }
+    .side { min-width: 170px; }
+    .student-home-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); gap: 18px; align-items: start; }
+    .student-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; margin: 18px 0; }
+    .student-details div { min-width: 0; }
+    .student-details dt { margin-bottom: 4px; color: var(--muted-blue); font-size: 12px; }
+    .student-details dd { margin: 0; color: var(--ink-blue); font-weight: 700; overflow-wrap: anywhere; }
+    .student-shortcuts button { display: block; width: 100%; text-align: left; }
+    .student-profile-hero {
+      display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr); gap: 34px;
+      align-items: center; padding: 34px; margin-bottom: 18px; overflow: hidden;
+      background: linear-gradient(115deg, #fff 0%, #eaf0fb 70%, #fff2dd 100%);
+      border: 1px solid var(--line-blue); border-radius: 18px; box-shadow: 0 12px 26px rgba(37, 75, 152, 0.09);
+    }
+    .student-hero-copy { min-width: 0; }
+    .profile-overline { margin-bottom: 10px; color: var(--brand-blue); font-size: 11px; font-weight: 800; }
+    .student-hero-copy h2 { max-width: 530px; margin: 0 0 12px; color: var(--ink-blue); font-size: 32px; line-height: 1.15; }
+    .student-hero-copy p { max-width: 480px; margin: 0; line-height: 1.55; }
+    .student-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .student-hero-actions button { margin-top: 10px; }
+    .student-profile-visual { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 18px; align-items: center; min-width: 0; padding: 8px 0 8px 22px; border-left: 1px solid #cbd7eb; }
+    .avatar.student-home-avatar { width: 138px; height: 138px; border: 5px solid #fff; font-size: 40px; box-shadow: 0 8px 20px rgba(25, 62, 58, 0.16); }
+    .student-profile-copy { min-width: 0; }
+    .student-profile-copy h3 { margin: 0 0 5px; color: var(--ink-blue); font-size: 21px; overflow-wrap: anywhere; }
+    .student-profile-copy .profile-role { color: var(--muted-blue); font-size: 13px; }
+    .student-profile-meta { display: grid; gap: 11px; margin-top: 18px; }
+    .student-profile-meta > div { min-width: 0; }
+    .student-profile-meta span { display: block; margin-bottom: 3px; color: var(--muted-blue); font-size: 10px; font-weight: 800; }
+    .student-profile-meta strong { display: block; color: var(--ink-blue); font-size: 13px; overflow-wrap: anywhere; }
+    .student-profile-meta button { margin-top: 2px; padding: 9px 12px; }
+    .tutor-profile-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .tutor-profile-facts > div { min-width: 0; padding: 13px; background: #fff; border: 1px solid var(--line-blue); border-radius: 8px; }
+    .tutor-profile-facts span { display: block; margin-bottom: 5px; color: var(--muted-blue); font-size: 10px; font-weight: 800; }
+    .tutor-profile-facts strong { display: block; color: var(--ink-blue); font-size: 14px; overflow-wrap: anywhere; }
+    .tutor-subjects { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tutor-subject-tag { padding: 7px 10px; color: var(--brand-blue-dark); background: var(--brand-blue-soft); border: 1px solid #d5e0f3; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .home-stat-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 30px; overflow: hidden; background: #fff; border: 1px solid #e4ecea; border-radius: 12px; }
+    .home-stat-strip .metric { min-height: 84px; margin: 0; border: 0; border-right: 1px solid #e4ecea; border-radius: 0; box-shadow: none; }
+    .home-stat-strip .metric:last-child { border-right: 0; }
+    .subject-section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 16px; }
+    .subject-section-head h2 { margin: 0 0 5px; color: var(--ink-blue); font-size: 22px; }
+    .subject-section-head p { margin: 0; }
+    .subject-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    button.subject-tile {
+      display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; margin: 0; padding: 13px;
+      text-align: left; color: var(--ink-blue); background: #fff; border: 1px solid var(--line-blue); border-radius: 8px; box-shadow: none;
+    }
+    button.subject-tile:hover { background: #f4f7fd; border-color: #a8bee6; transform: translateY(-2px); box-shadow: 0 7px 16px rgba(37, 75, 152, 0.09); }
+    .subject-icon { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; border-radius: 8px; color: #294f9e; background: #eaf0fb; font-size: 19px; font-weight: 800; }
+    .subject-tile:nth-child(3n + 2) .subject-icon { color: #3857aa; background: #e8edff; }
+    .subject-tile:nth-child(3n) .subject-icon { color: #a56817; background: #fff0d7; }
+    .subject-name { font-size: 14px; font-weight: 700; }
+
+    /* ---------- tutor cards (photo on top, like a tutor directory) ---------- */
+    .tutor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; margin-top: 4px; }
+    .tutor-card {
+      display: flex; flex-direction: column; overflow: hidden;
+      background: #fff; border: 1px solid var(--line-blue); border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(37, 75, 152, 0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .tutor-card:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(37, 75, 152, 0.15); }
+    .tutor-card.paused { opacity: 0.82; }
+    .tutor-card.paused .tutor-photo img { filter: grayscale(0.7); }
+    .tutor-photo {
+      position: relative; overflow: hidden; aspect-ratio: 4 / 3;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--brand-blue); color: #fff; font-size: 64px; font-weight: 800;
+    }
+    .tutor-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
+    .tutor-photo .badge { position: absolute; top: 12px; right: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18); }
+    .tutor-body { display: flex; flex-direction: column; gap: 9px; flex: 1; padding: 16px 18px 18px; }
+    .tutor-name { margin: 0; color: var(--ink-blue); font-size: 19px; }
+    .tutor-qual { margin: 0; color: var(--muted-blue); font-size: 14px; }
+    .tutor-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tutor-review-summary { margin: 0; color: #52627c; font-size: 13px; }
+    .subject-pill { padding: 6px 12px; border-radius: 999px; background: #fff1c9; color: #6b4a06; font-size: 13px; font-weight: 700; }
+    .tutor-facts { display: grid; gap: 5px; margin: 4px 0 0; padding: 0; list-style: none; color: var(--ink-blue); font-size: 13px; }
+    .tutor-actions { margin-top: auto; padding-top: 10px; }
+    .tutor-actions > button { width: 100%; }
+    .tutor-actions .phone { margin: 6px 0 0; }
+    .tutor-card { cursor: pointer; }
+    .tutor-card:focus-visible { outline: 3px solid #6d8cff; outline-offset: 3px; }
+    .tutor-overview { max-width: 900px; margin: 0 auto; }
+    .overview-back { margin: 0 0 14px; }
+    .overview-hero {
+      display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; align-items: center;
+      padding: 18px; margin-bottom: 18px; background: #fff; border: 1px solid var(--brand-blue);
+      border-radius: 14px;
+    }
+    .avatar.overview-photo {
+      flex-shrink: 0; width: 100%; height: 190px; border-radius: 10px;
+      overflow: hidden; font-size: 64px;
+    }
+    .overview-identity {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 18px; align-items: start;
+    }
+    .overview-identity h2, .overview-rating, .overview-subjects, .overview-facts {
+      grid-column: 1 / -1;
+    }
+    .overview-identity h2 { margin: 0 0 7px; color: var(--ink-blue); }
+    .overview-rating { margin: 0 0 10px; color: #4d607f; font-size: 14px; }
+    .overview-rating strong { color: #1f8f61; }
+    .overview-subjects { display: flex; gap: 7px; flex-wrap: wrap; }
+    .overview-facts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; color: var(--muted-blue); font-size: 13px; }
+    .overview-columns { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr); gap: 18px; align-items: start; }
+    .overview-section { padding: 18px; margin-bottom: 14px; }
+    .overview-section h3 { margin: 0 0 10px; color: var(--ink-blue); font-size: 16px; }
+    .overview-bio { white-space: pre-wrap; line-height: 1.55; }
+    .review-entry { padding: 12px 0; border-top: 1px solid var(--line-blue); }
+    .review-entry:first-of-type { border-top: 0; }
+    .review-entry p { margin: 5px 0 0; line-height: 1.45; }
+    .review-stars { color: #e7a900; letter-spacing: 1px; }
+    .trial-form label { margin-top: 10px; }
+    .trial-form button, .review-form button { width: 100%; }
+    .request-modal {
+      position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center;
+      justify-content: center; padding: 20px; overflow-y: auto;
+      background: rgba(20, 32, 54, 0.48);
+    }
+    .request-modal-panel {
+      width: min(100%, 560px); max-height: calc(100vh - 40px); overflow-y: auto;
+      padding: 24px; border-radius: 18px; background: #fff;
+      box-shadow: 0 24px 70px rgba(20, 32, 54, 0.28);
+    }
+    .request-modal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .request-modal-header h3 { margin: 0; color: var(--ink-blue); }
+    .request-modal-header .muted { margin: 7px 0 0; }
+    button.modal-close {
+      flex: 0 0 auto; margin: -8px -8px 0 0; padding: 6px 10px;
+      color: var(--muted-blue); background: transparent; box-shadow: none; font-size: 24px;
+    }
+    button.modal-close:hover { color: var(--ink-blue); background: #f1f4fa; box-shadow: none; transform: none; }
+    .overview-regular-action {
+      grid-column: 2; align-self: end; width: 100%; min-width: 210px;
+      margin-top: 12px; white-space: nowrap;
+    }
+
+    @media (max-width: 800px) {
+      .student-layout, .student-home-grid, .tutor-top { grid-template-columns: 1fr; }
+      .find-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .about-feature-grid { grid-template-columns: 1fr; }
+      .dashboard-hero { padding: 22px; }
+      .student-profile-hero { grid-template-columns: 1fr; gap: 22px; }
+      .student-profile-visual { padding: 20px 0 0; border-left: 0; border-top: 1px solid #cbd7eb; }
+      .subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tutor-profile-facts { grid-template-columns: 1fr; }
+      .overview-columns { grid-template-columns: 1fr; }
+      .overview-regular-action { min-width: 0; white-space: normal; }
+      .request-modal { padding: 12px; }
+      .request-modal-panel { max-height: calc(100vh - 24px); padding: 18px; }
+    }
+    @media (max-width: 560px) {
+      header { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+      header h1 { font-size: 18px; }
+      .header-student-nav { order: 3; width: 100%; justify-content: flex-start; overflow-x: auto; }
+      button.header-nav-link { flex: 0 0 auto; padding: 9px 11px; font-size: 13px; }
+      #userInfo { margin-left: auto; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .metric { min-height: 75px; }
+      .dashboard-hero h2 { font-size: 22px; }
+      .dashboard-hero { align-items: flex-start; padding: 20px; }
+      .hero-mark { font-size: 30px; }
+      .profile-fields { grid-template-columns: 1fr; }
+      .profile-fields > .full { grid-column: auto; }
+      .dashboard-section { padding: 18px; }
+      .find-hero { padding: 22px; }
+      .find-hero h2 { font-size: 25px; }
+      .find-filters { padding: 17px; }
+      .find-filter-grid { grid-template-columns: 1fr; gap: 10px; }
+      .find-filter-actions { align-items: stretch; flex-direction: column; }
+      .find-filter-actions > div { width: 100%; }
+      .find-search-button { width: 100%; }
+      .find-clear-button { flex: 1; }
+      .find-results-head { align-items: flex-start; flex-direction: column; }
+      .requests-hero { align-items: flex-start; flex-direction: column; gap: 16px; }
+      .requests-hero-actions, .requests-hero-actions button { width: 100%; }
+      .request-summary-grid { grid-template-columns: 1fr; gap: 9px; }
+      .student-profile-hero { padding: 22px; }
+      .student-profile-visual { grid-template-columns: 92px minmax(0, 1fr); gap: 14px; }
+      .avatar.student-home-avatar { width: 92px; height: 92px; font-size: 28px; }
+      .student-hero-copy h2 { font-size: 26px; }
+      .home-stat-strip { grid-template-columns: 1fr; }
+      .home-stat-strip .metric { border-right: 0; border-bottom: 1px solid #e4ecea; }
+      .home-stat-strip .metric:last-child { border-bottom: 0; }
+      .subject-grid { grid-template-columns: 1fr; }
+      .subject-section-head { align-items: flex-start; flex-direction: column; }
+      .overview-identity { grid-template-columns: 1fr; }
+      .overview-regular-action { grid-column: 1; }
+      .overview-hero { grid-template-columns: 1fr; gap: 14px; }
+      .avatar.overview-photo { height: 220px; }
+    }
+
+    /* !important is needed: otherwise rules like "#userInfo { display: flex }"
+       (an ID beats a class) keep hidden things visible */
+    .hidden { display: none !important; }
+
+    /* ---------- profile avatar + dropdown (top right) ---------- */
+    .profile-wrap { position: relative; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 15px; background: #6e9dff;
+    }
+    .avatar.big { width: 52px; height: 52px; font-size: 18px; }
+    .avatar.xl { width: 84px; height: 84px; font-size: 28px; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    button.avatar-btn {
+      width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.9); box-shadow: none; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 15px; background: #6e9dff;
+    }
+    button.avatar-btn:hover { transform: none; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3); }
+    button.avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .profile-menu {
+      position: absolute; right: 0; top: 54px; width: 290px; z-index: 50;
+      background: white; color: #1f2a44; text-align: left;
+      border: 1px solid #e3eaff; border-radius: 16px; padding: 14px;
+      box-shadow: 0 18px 40px rgba(29, 61, 117, 0.22);
+    }
+    .pm-head { display: flex; gap: 12px; align-items: center; }
+    .pm-name { font-weight: 800; font-size: 15px; word-break: break-word; }
+    .pm-sub { color: #5d6f92; font-size: 13px; word-break: break-all; }
+    .pm-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: 13px; color: #5d6f92; }
+    .profile-menu hr { border: none; border-top: 1px solid #e8eefc; margin: 12px 0 6px; }
+    button.pm-item {
+      display: block; width: 100%; text-align: left; background: none; color: #1f2a44;
+      box-shadow: none; margin: 0; padding: 10px 8px; border-radius: 10px; font-weight: 600;
+    }
+    button.pm-item:hover { background: #eef3ff; transform: none; box-shadow: none; }
+
+    .edit-photo { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+
+    /* ---------- login / signup design ---------- */
+    .auth-shell {
+      display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 0;
+      max-width: 1020px; margin: 30px auto 0; background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(148, 171, 255, 0.28); border-radius: 28px;
+      overflow: hidden; box-shadow: 0 22px 60px rgba(47, 79, 155, 0.12);
+      backdrop-filter: blur(8px);
+    }
+    .auth-visual {
+      background: linear-gradient(180deg, #ebf5ff 0%, #edf6ff 28%, #f8f9ff 100%);
+      position: relative; padding: 38px 32px 24px; display: flex; flex-direction: column; justify-content: center;
+      min-height: 630px;
+    }
+    .auth-visual::before, .auth-visual::after {
+      content: ""; position: absolute; border-radius: 50%; background: rgba(110, 157, 255, 0.12);
+    }
+    .auth-visual::before { width: 260px; height: 260px; right: -60px; top: -30px; }
+    .auth-visual::after { width: 180px; height: 180px; left: -35px; bottom: 20px; }
+    .mini-brand {
+      display: inline-flex; align-items: center; gap: 10px; background: rgba(98, 146, 255, 0.12);
+      border: 1px solid rgba(98, 146, 255, 0.18); color: #395fc8; border-radius: 999px; padding: 8px 14px; font-weight: 700; width: fit-content; margin-bottom: 18px;
+    }
+    .hero-badge {
+      width: 110px; height: 110px; border-radius: 28px; background: linear-gradient(135deg, #3d75ff 0%, #72a6ff 100%);
+      display: flex; align-items: center; justify-content: center; color: white; font-size: 52px; box-shadow: 0 20px 36px rgba(61, 117, 255, 0.25); margin: 8px auto 18px;
+      position: relative; z-index: 1;
+    }
+    .hero-title {
+      font-size: clamp(2rem, 3vw, 3rem); line-height: 1.1; margin: 0; color: #1e2f5f; text-align: center; font-weight: 800;
+    }
+    .hero-subtitle {
+      margin: 14px auto 0; max-width: 320px; font-size: 1rem; text-align: center; color: #6378a4; line-height: 1.5;
+    }
+    .hero-card {
+      position: relative; z-index: 1; width: min(100%, 280px); margin: 26px auto 0; background: rgba(255,255,255,0.9);
+      border-radius: 22px; border: 1px solid rgba(117, 148, 255, 0.18); box-shadow: 0 18px 30px rgba(57, 91, 178, 0.12); padding: 20px 18px;
+    }
+    .hero-card .row-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; color: #495e9b; font-size: 14px; }
+    .hero-card .dots { display: flex; gap: 6px; }
+    .hero-card .dot {
+      width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+    }
+    .hero-card .dot.blue { background: #62a6ff; }
+    .hero-card .dot.green { background: #62d0a5; }
+    .hero-card .dot.orange { background: #f9b54c; }
+    .hero-card .stat { font-size: 27px; font-weight: 800; color: #2847ad; margin: 6px 0 0; }
+    .hero-card .small-tag { display: inline-block; background: #eef7ff; color: #3d72da; border-radius: 999px; font-weight: 700; font-size: 12px; padding: 6px 10px; }
+
+    .auth-panel {
+      background: rgba(255,255,255,0.88); padding: 28px 28px 30px; display: flex; align-items: center; justify-content: center;
+    }
+    .auth-card {
+      width: min(100%, 380px); background: white; border-radius: 24px; border: 1px solid rgba(162, 191, 255, 0.22);
+      box-shadow: 0 18px 36px rgba(40, 64, 120, 0.08); padding: 22px 18px 20px;
+    }
+    .auth-card h2 { margin: 0; font-size: 1.8rem; color: #1f2a44; }
+    .auth-card .sub { margin: 8px 0 18px; color: #62749b; font-size: 14px; }
+    .auth-card .tabs { margin-bottom: 16px; }
+    .auth-card .tab { flex: 1; }
+    .auth-card .field { margin-top: 10px; }
+    .auth-card input, .auth-card select { background: #f7faff; border-radius: 12px; }
+    .auth-card button { width: 100%; margin-top: 18px; }
+    .auth-card .msg { margin-top: 12px; }
+
+    @media (max-width: 860px) {
+      .auth-shell { grid-template-columns: 1fr; }
+      .auth-visual { min-height: 420px; }
+      .auth-card { margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1> Tutor Match</h1>
+
+  <nav id="studentHeaderNav" class="header-student-nav hidden" aria-label="Student navigation">
+    <button class="header-nav-link active" id="studentTabHome" onclick="showStudentTab('studentHomeTab')">Home</button>
+    <button class="header-nav-link" id="studentTabFind" onclick="showStudentTab('studentFindTab')">Find a tutor</button>
+    <button class="header-nav-link" id="studentTabRequests" onclick="showStudentTab('studentRequestsTab')">My requests<span id="requestTabCount" class="header-nav-count">0</span></button>
+    <button class="header-nav-link" id="studentTabAbout" onclick="showStudentTab('studentAboutTab')">About us</button>
+  </nav>
+
+  <nav id="tutorHeaderNav" class="header-student-nav hidden" aria-label="Tutor navigation">
+    <button class="header-nav-link active" id="tutorTabHome" onclick="showTutorTab('tutorHomeTab')">Home</button>
+    <button class="header-nav-link" id="tutorTabRequests" onclick="showTutorTab('tutorRequestsTab')">Student requests<span id="tutorRequestTabCount" class="header-nav-count">0</span></button>
+    <button class="header-nav-link" id="tutorTabAbout" onclick="showTutorTab('tutorAboutTab')">About us</button>
+  </nav>
+
+  <!-- Shown only after login/signup: avatar + dropdown menu -->
+  <div id="userInfo" class="hidden">
+    <div class="profile-wrap">
+      <button id="avatarBtn" class="avatar-btn" onclick="toggleProfileMenu(event)" aria-label="Open profile menu"></button>
+
+      <div id="profileMenu" class="profile-menu hidden">
+        <div class="pm-head">
+          <div id="pmAvatar" class="avatar big"></div>
+          <div>
+            <div id="pmName" class="pm-name"></div>
+            <div id="pmEmail" class="pm-sub"></div>
+          </div>
+        </div>
+        <div class="pm-meta">
+          <span id="pmRole" class="badge"></span>
+          <span id="pmArea"></span>
+        </div>
+        <hr>
+        <button class="pm-item" onclick="openEditProfile()">✏️ Edit profile</button>
+        <button class="pm-item" onclick="logout()">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Edit profile (opens from the dropdown, for anyone logged in) -->
+  <div id="editBox" class="box hidden">
+    <button type="button" class="ghost small" onclick="closeEditProfile()">← Back to profile</button>
+    <h2>Edit profile</h2>
+
+    <div class="edit-photo">
+      <div id="editAvatarPreview" class="avatar xl"></div>
+      <div>
+        <button class="ghost small" onclick="pickPhoto()">📷 Choose photo</button>
+        <button class="ghost small" onclick="removePhoto()">Remove photo</button>
+        <p class="muted" id="photoHint">JPG or PNG. We shrink it to a small square automatically.</p>
+      </div>
+    </div>
+    <input type="file" id="editPhoto" accept="image/*" class="hidden" onchange="onPhotoChosen(event)">
+
+    <label>Name</label>
+    <input type="text" id="editName" maxlength="60">
+
+    <label>My area</label>
+    <select id="editArea"></select>
+
+    <label>Email (can't be changed here)</label>
+    <input type="email" id="editEmail" disabled>
+
+    <button onclick="saveProfile()">💾 Save changes</button>
+
+    <div id="tutorProfileEditFields" class="hidden">
+      <hr>
+      <h2>Teaching profile</h2>
+      <p class="muted">Update the details students use to find and contact you.</p>
+      <div class="profile-fields">
+        <div>
+          <label>Qualification</label>
+          <input type="text" id="tQualification" placeholder="e.g. B.Tech CSE">
+        </div>
+        <div class="full">
+          <label>About me</label>
+          <textarea id="tBio" maxlength="600" placeholder="Share your teaching experience and approach (up to 600 characters)."></textarea>
+        </div>
+        <div>
+          <label>Mobile number (shared only with students you accept)</label>
+          <input type="tel" id="tPhone" placeholder="e.g. 9876543210">
+        </div>
+        <div class="full">
+          <label>Subjects you teach</label>
+          <div class="checks" id="tSubjects"></div>
+        </div>
+        <div class="row full">
+          <div>
+            <label>Teach classes from</label>
+            <select id="tMinClass"></select>
+          </div>
+          <div>
+            <label>to</label>
+            <select id="tMaxClass"></select>
+          </div>
+        </div>
+        <div class="row full">
+          <div>
+            <label>Available from</label>
+            <select id="tFrom"></select>
+          </div>
+          <div>
+            <label>Available until</label>
+            <select id="tTo"></select>
+          </div>
+          <div>
+            <label>Max teaching hours / day</label>
+            <input type="number" id="tMaxHours" min="1" max="12" placeholder="e.g. 3">
+          </div>
+        </div>
+      </div>
+      <button onclick="saveTutorProfile()">💾 Save teaching profile</button>
+      <div id="tutorMsg" class="msg"></div>
+    </div>
+
+    <div id="editMsg" class="msg"></div>
+  </div>
+
+  <!-- SCREEN 1: login / signup / forgot password -->
+  <div id="authView" class="hidden">
+    <div class="auth-shell">
+      <div class="auth-visual">
+        <div class="mini-brand">🎓 Tutor Match</div>
+        <div class="hero-badge">🎓</div>
+        <h1 class="hero-title">A bright start<br>for every learner</h1>
+        <p class="hero-subtitle">Smart, friendly guidance for children from Classes 1 to 10.</p>
+
+        <div class="hero-card">
+          <div class="row-line">
+            <span>Learning today</span>
+            <div class="dots">
+              <span class="dot blue"></span>
+              <span class="dot green"></span>
+              <span class="dot orange"></span>
+            </div>
+          </div>
+          <div class="small-tag">School-ready</div>
+          <p class="stat">1:1 support</p>
+        </div>
+      </div>
+
+      <div class="auth-panel">
+        <div class="auth-card">
+          <h2>Welcome back</h2>
+          <p class="sub">Pick a mode and start learning with confidence.</p>
+
+          <div class="tabs">
+            <button class="tab active" id="tabLogin" onclick="showAuthTab('login')">Login</button>
+            <button class="tab" id="tabSignup" onclick="showAuthTab('signup')">Sign up</button>
+          </div>
+
+          <div id="loginForm">
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="loginEmail" placeholder="Enter your email">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button onclick="doLogin()">Login</button>
+            <div><button class="link" onclick="openForgot()">Forgot password?</button></div>
+          </div>
+
+          <div id="signupForm" class="hidden">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" id="signupName" placeholder="Your full name">
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="signupEmail" placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" id="signupPassword" placeholder="At least 6 characters">
+            </div>
+            <div class="field">
+              <label>I am a...</label>
+              <select id="signupRole">
+                <option value="student">Student / Parent</option>
+                <option value="tutor">Tutor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>My area</label>
+              <select id="signupArea"></select>
+            </div>
+            <button onclick="doSignup()">Create account</button>
+          </div>
+
+          <div id="forgotForm" class="hidden">
+            <h2>Forgot your password?</h2>
+            <p class="muted">Enter your email and we'll send a 6-digit code.</p>
+            <label>Email</label>
+            <input type="email" id="forgotEmail" placeholder="you@example.com">
+            <button onclick="sendResetCode()">Send code</button>
+
+            <div id="forgotStep2" class="hidden">
+              <label>6-digit code</label>
+              <input type="text" id="resetCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456">
+              <label>New password</label>
+              <input type="password" id="resetNewPassword" autocomplete="new-password" placeholder="New password">
+              <button onclick="doResetPassword()">Reset password</button>
+            </div>
+
+            <div><button class="link" onclick="showAuthTab('login')">← Back to login</button></div>
+          </div>
+
+          <div id="authMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: student home -->
+  <div id="studentView" class="hidden">
+    <section id="studentHomeTab" class="student-panel">
+      <section class="student-profile-hero">
+        <div class="student-hero-copy">
+          <div class="profile-overline">TUTOR MATCH · STUDENT HOME</div>
+          <h2 id="studentGreeting">Find learning support that fits you.</h2>
+          <p class="muted">Explore nearby tutors by subject, class, schedule, and distance from your area.</p>
+          <div class="student-hero-actions">
+            <button onclick="showStudentTab('studentFindTab')">Explore tutors</button>
+            <button class="ghost" onclick="showStudentTab('studentRequestsTab')">Check my requests</button>
+          </div>
+        </div>
+        <div class="student-profile-visual">
+          <div id="studentHomeAvatar" class="avatar student-home-avatar"></div>
+          <div class="student-profile-copy">
+            <div class="profile-overline">YOUR PROFILE</div>
+            <h3 id="studentWelcome">Student name</h3>
+            <span class="profile-role">Student / Parent</span>
+            <div class="student-profile-meta">
+              <div><span>EMAIL</span><strong id="studentDetailEmail"></strong></div>
+              <div><span>YOUR AREA</span><strong id="studentDetailArea"></strong></div>
+              <button class="ghost" onclick="openEditProfile()">✏️ Edit profile</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="home-stat-strip" aria-label="Student summary">
+        <div class="metric"><strong id="studentTutorCount">—</strong><span>tutors found in your last search</span></div>
+        <div class="metric"><strong id="studentPendingCount">0</strong><span>requests waiting for a reply</span></div>
+        <div class="metric"><strong id="studentAcceptedCount">0</strong><span>tutors ready to contact</span></div>
+      </div>
+
+      <section class="home-subjects">
+        <div class="subject-section-head">
+          <div><h2>Explore subjects</h2><p class="muted">Choose a subject to start finding the right tutor.</p></div>
+          <button class="ghost small" onclick="showStudentTab('studentFindTab')">All tutor search filters</button>
+        </div>
+        <div id="homeSubjects" class="subject-grid"></div>
+      </section>
+    </section>
+
+    <section id="studentFindTab" class="student-panel hidden">
+      <section class="find-hero">
+        <div class="profile-overline">PERSONALIZED TUTOR SEARCH</div>
+        <h2>Find the right tutor for you</h2>
+        <p>Explore local tutors who fit your subject, class, schedule, and preferred distance. Select a profile to learn more.</p>
+      </section>
+      <section class="find-filters" aria-labelledby="findFiltersTitle">
+        <div class="find-filters-head">
+          <div>
+            <h3 id="findFiltersTitle">Refine your search</h3>
+            <p>Choose any filters you want. Leave a field open to include all options.</p>
+          </div>
+        </div>
+        <div class="find-filter-grid">
+          <div class="field">
+            <label for="fSubject">Subject</label>
+            <select id="fSubject"></select>
+          </div>
+          <div class="field">
+            <label for="fClass">Class</label>
+            <select id="fClass"></select>
+          </div>
+          <div class="field">
+            <label for="fFrom">Available from</label>
+            <select id="fFrom"></select>
+          </div>
+          <div class="field">
+            <label for="fTo">Available until</label>
+            <select id="fTo"></select>
+          </div>
+          <div class="field">
+            <label for="fRadius">Distance</label>
+            <select id="fRadius">
+              <option value="" selected>Any distance</option>
+              <option value="2">Within 2 km</option>
+              <option value="5">Within 5 km</option>
+              <option value="10">Within 10 km</option>
+              <option value="15">Within 15 km</option>
+            </select>
+          </div>
+        </div>
+        <div class="find-filter-actions">
+          <div>
+            <button class="find-search-button" onclick="doSearch()">Search tutors</button>
+            <button type="button" class="ghost find-clear-button" onclick="clearTutorFilters()">Clear filters</button>
+          </div>
+        </div>
+        <div id="searchMsg" class="msg"></div>
+      </section>
+      <div id="results"></div>
+    </section>
+
+    <section id="tutorOverviewPage" class="student-panel hidden">
+      <div class="tutor-overview">
+        <button id="overviewBackButton" type="button" class="ghost overview-back" onclick="closeTutorOverview()">← Back to tutors</button>
+        <div id="overviewLoading" class="box muted">Loading tutor overview...</div>
+        <div id="overviewContent" class="hidden">
+          <section class="overview-hero">
+            <div id="overviewAvatar" class="avatar overview-photo"></div>
+            <div class="overview-identity">
+              <h2 id="overviewName"></h2>
+              <p id="overviewRating" class="overview-rating"></p>
+              <div id="overviewSubjects" class="overview-subjects"></div>
+              <div id="overviewFacts" class="overview-facts"></div>
+              <button id="openTutoringRequestButton" type="button" class="overview-regular-action hidden"
+                onclick="openTutoringRequestForm()">Request regular tutoring</button>
+            </div>
+          </section>
+          <div class="overview-columns">
+            <div>
+              <section class="box overview-section">
+                <h3>About me</h3>
+                <p id="overviewBio" class="overview-bio muted"></p>
+              </section>
+              <section class="box overview-section">
+                <h3>Education qualification</h3>
+                <p id="overviewQualification" class="muted"></p>
+              </section>
+              <section class="box overview-section">
+                <h3>Reviews from students and parents</h3>
+                <div id="overviewReviews"></div>
+                <div id="reviewFormWrap"></div>
+              </section>
+            </div>
+            <div>
+              <section class="box overview-section">
+                <h3>Request a free trial</h3>
+                <p class="muted">Choose a preferred time within the tutor's availability. The tutor will confirm your request.</p>
+                <div id="trialRequestForm" class="trial-form">
+                  <label for="trialParentName">Parent name</label>
+                  <input type="text" id="trialParentName" readonly>
+                  <label for="trialEmail">Email address</label>
+                  <input type="email" id="trialEmail" readonly>
+                  <label for="trialChildName">Student name</label>
+                  <input type="text" id="trialChildName" maxlength="60">
+                  <label for="trialPhone">Parent / contact phone</label>
+                  <input type="tel" id="trialPhone" placeholder="10-digit mobile number">
+                  <label for="trialClass">Class</label>
+                  <select id="trialClass"></select>
+                  <label for="trialSubject">Subject</label>
+                  <select id="trialSubject"></select>
+                  <label for="trialDate">Preferred date</label>
+                  <input type="date" id="trialDate">
+                  <label for="trialTime">Preferred time</label>
+                  <input type="time" id="trialTime">
+                  <label for="trialMessage">Message (optional)</label>
+                  <textarea id="trialMessage" maxlength="300" placeholder="Anything the tutor should know?"></textarea>
+                  <button id="trialSubmitButton" type="button" onclick="submitTrialBooking()">Send free-trial request</button>
+                  <div id="trialMsg" class="msg"></div>
+                </div>
+              </section>
+            </div>
+          </div>
+          <div id="tutoringRequestModal" class="request-modal hidden"
+            role="dialog" aria-modal="true" aria-labelledby="tutoringModalTitle"
+            onclick="handleTutoringModalBackdrop(event)">
+            <section class="request-modal-panel">
+              <div class="request-modal-header">
+                <div>
+                  <h3 id="tutoringModalTitle">Request regular tutoring</h3>
+                  <p class="muted">Choose one or more subjects, a date range, and the weekly schedule you prefer.</p>
+                </div>
+                <button type="button" class="modal-close" aria-label="Close"
+                  onclick="closeTutoringRequestForm()">×</button>
+              </div>
+              <div id="tutoringRequestForm" class="trial-form">
+                <label for="bookingChildName">Student name</label>
+                <input type="text" id="bookingChildName" maxlength="60">
+                <label for="bookingPhone">Parent / contact phone</label>
+                <input type="tel" id="bookingPhone" placeholder="10-digit mobile number">
+                <label for="bookingClass">Class</label>
+                <select id="bookingClass"></select>
+                <label>Subjects (select all that apply)</label>
+                <div id="bookingSubjects" class="checks"></div>
+                <div class="row">
+                  <div>
+                    <label for="bookingStartDate">Start date</label>
+                    <input type="date" id="bookingStartDate">
+                  </div>
+                  <div>
+                    <label for="bookingEndDate">End date</label>
+                    <input type="date" id="bookingEndDate">
+                  </div>
+                </div>
+                <label>Preferred days</label>
+                <div id="bookingWeekdays" class="checks"></div>
+                <label for="bookingFrom">Preferred time from</label>
+                <input type="time" id="bookingFrom">
+                <label for="bookingTo">Preferred time until</label>
+                <input type="time" id="bookingTo">
+                <label for="bookingMessage">Message (optional)</label>
+                <textarea id="bookingMessage" maxlength="300" placeholder="Share any details about the lessons you need."></textarea>
+                <button id="bookingSubmitButton" type="button" onclick="submitTutoringRequest()">Send tutoring request</button>
+                <div id="bookingMsg" class="msg"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="studentRequestsTab" class="student-panel hidden">
+      <div class="box dashboard-section">
+        <section class="find-hero requests-hero">
+          <div class="requests-hero-copy">
+            <div class="profile-overline">YOUR LEARNING JOURNEY</div>
+            <h2>My requests</h2>
+            <p>Keep track of tutor replies, review request details, and continue the conversation when a tutor accepts.</p>
+          </div>
+          <div class="requests-hero-actions">
+            <button type="button" onclick="showStudentTab('studentFindTab')">Find another tutor</button>
+          </div>
+        </section>
+        <div class="request-summary-grid" aria-label="Request status summary">
+          <div class="request-summary-card">
+            <div class="request-summary-icon" aria-hidden="true">↻</div>
+            <div><strong id="requestsPendingSummary">0</strong><span>Waiting for a reply</span></div>
+          </div>
+          <div class="request-summary-card">
+            <div class="request-summary-icon" aria-hidden="true">✓</div>
+            <div><strong id="requestsAcceptedSummary">0</strong><span>Accepted requests</span></div>
+          </div>
+          <div class="request-summary-card">
+            <div class="request-summary-icon" aria-hidden="true">☰</div>
+            <div><strong id="requestsTotalSummary">0</strong><span>Total requests</span></div>
+          </div>
+        </div>
+        <h3 class="requests-list-heading">Your request history</h3>
+        <details class="request-accordion">
+          <summary>Free-trial requests<span id="myTrialRequestCount" class="request-accordion-count">0</span></summary>
+          <div class="request-accordion-content">
+            <p class="muted">The tutor will review your preferred time and confirm or decline.</p>
+            <div id="myTrialRequests"></div>
+          </div>
+        </details>
+        <details class="request-accordion">
+          <summary>Tutoring requests<span id="myTutoringRequestCount" class="request-accordion-count">0</span></summary>
+          <div class="request-accordion-content">
+            <p class="muted">Tutors review your requested class, subjects, date range, days, and times. Contact details are shared after acceptance.</p>
+            <div id="myTutoringRequests"></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="studentAboutTab" class="student-panel hidden">
+      <div class="box dashboard-section about-page">
+        <section class="find-hero about-hero">
+          <div class="profile-overline">ABOUT TUTOR MATCH</div>
+          <h2>Good learning starts with the right connection.</h2>
+          <p>Finding support should feel simple. Tutor Match helps families explore nearby tutors, compare what they teach, and reach out when they find a good fit.</p>
+        </section>
+        <div class="about-section-heading">
+          <h3>A clearer way to find learning support</h3>
+          <p>Search, connect, and keep track of every step in one place.</p>
+        </div>
+        <div class="about-feature-grid">
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">⌕</div>
+            <div><h3>Find a tutor who fits</h3><p>Explore tutors by subject, class level, availability, and distance from your area.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">↗</div>
+            <div><h3>Make the first connection</h3><p>Send a free-trial or tutoring request and follow its progress from My requests.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">✓</div>
+            <div><h3>Know where things stand</h3><p>See when a request is waiting, accepted, or declined, along with any reply from the tutor.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">▣</div>
+            <div><h3>Contact details shared thoughtfully</h3><p>A tutor’s contact details become available after they accept your request.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SCREEN 3: tutor dashboard -->
+  <div id="tutorView" class="hidden">
+    <section id="tutorHomeTab" class="tutor-panel">
+      <section class="student-profile-hero">
+        <div class="student-hero-copy">
+          <div class="profile-overline">TUTOR MATCH · TEACHER HOME</div>
+          <h2 id="tutorGreeting">Make room for a learner to grow.</h2>
+          <p class="muted">Keep an eye on your availability and student requests, all from one place.</p>
+          <div class="student-hero-actions">
+            <button onclick="showTutorTab('tutorRequestsTab')">Review student requests</button>
+            <button class="ghost" onclick="openEditProfile()">Edit teaching profile</button>
+          </div>
+        </div>
+        <div class="student-profile-visual">
+          <div id="tutorHomeAvatar" class="avatar student-home-avatar"></div>
+          <div class="student-profile-copy">
+            <div class="profile-overline">YOUR PROFILE</div>
+            <h3 id="tutorWelcome">Tutor name</h3>
+            <span class="profile-role">Tutor</span>
+            <div class="student-profile-meta">
+              <div><span>EMAIL</span><strong id="tutorDetailEmail"></strong></div>
+              <div><span>YOUR AREA</span><strong id="tutorDetailArea"></strong></div>
+              <button class="ghost" onclick="openEditProfile()">✏️ Edit profile</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="home-stat-strip" aria-label="Tutor summary">
+        <div class="metric"><strong id="tutorPendingCount">0</strong><span>requests waiting for your reply</span></div>
+        <div class="metric"><strong id="tutorAcceptedCount">0</strong><span>requests you have accepted</span></div>
+        <div class="metric"><strong id="tutorProfileStatus">Not ready</strong><span>profile visibility</span></div>
+      </div>
+
+      <section class="box dashboard-section availability-panel">
+        <div class="status-line"><h2>Availability</h2><span id="availabilityBadge" class="badge off">Profile needed</span></div>
+        <p class="muted" id="availText"></p>
+        <button id="availBtn" class="hidden" onclick="toggleAvailability()"></button>
+        <div id="availMsg" class="msg"></div>
+      </section>
+
+      <section class="box dashboard-section profile-panel">
+        <h2>Teaching at a glance</h2>
+        <p class="section-kicker" id="tutorTeachingSummary">Complete your teaching profile to show these details.</p>
+        <div class="tutor-profile-facts">
+          <div><span>QUALIFICATION</span><strong id="tutorHomeQualification">Not added</strong></div>
+          <div><span>CLASSES</span><strong id="tutorHomeClasses">Not set</strong></div>
+          <div><span>TEACHING HOURS</span><strong id="tutorHomeHours">Not set</strong></div>
+        </div>
+        <div id="tutorHomeSubjects" class="tutor-subjects"></div>
+      </section>
+    </section>
+
+    <section id="tutorRequestsTab" class="tutor-panel hidden">
+      <div class="box dashboard-section inbox-panel">
+        <h2>Student requests</h2>
+        <p class="section-kicker" id="inboxSummary"></p>
+        <details class="request-accordion">
+          <summary>Free-trial requests<span id="inboxTrialCount" class="request-accordion-count">0</span></summary>
+          <div class="request-accordion-content"><div id="inboxTrials"></div></div>
+        </details>
+        <details class="request-accordion">
+          <summary>Tutoring requests<span id="inboxTutoringCount" class="request-accordion-count">0</span></summary>
+          <div class="request-accordion-content"><div id="inboxTutoring"></div></div>
+        </details>
+        <details class="request-accordion">
+          <summary>Contact requests<span id="inboxContactCount" class="request-accordion-count">0</span></summary>
+          <div class="request-accordion-content"><div id="inboxContactRequests"></div></div>
+        </details>
+        <div id="inboxMsg" class="msg"></div>
+      </div>
+    </section>
+
+    <section id="tutorAboutTab" class="tutor-panel hidden">
+      <div class="box dashboard-section about-page">
+        <section class="find-hero about-hero">
+          <div class="profile-overline">ABOUT TUTOR MATCH</div>
+          <h2>Make it easier for the right learners to find you.</h2>
+          <p>Build a clear teaching profile, choose when you’re available, and manage student enquiries from one place.</p>
+        </section>
+        <div class="about-section-heading">
+          <h3>Your teaching profile, your way</h3>
+          <p>Keep your information current and respond to learners when you’re ready.</p>
+        </div>
+        <div class="about-feature-grid">
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">✎</div>
+            <div><h3>Show your teaching strengths</h3><p>Add your subjects, class range, qualification, and availability so students can see if you’re a good fit.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">◷</div>
+            <div><h3>Stay in control of availability</h3><p>Update your schedule or pause new requests from your Home page whenever plans change.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">✓</div>
+            <div><h3>Manage enquiries in one place</h3><p>Review free-trial and tutoring requests, then accept or decline each one from Student requests.</p></div>
+          </article>
+          <article class="about-feature">
+            <div class="about-feature-icon" aria-hidden="true">▣</div>
+            <div><h3>Keep contact details private</h3><p>Your phone number is shared with a student only after you accept their request.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div>
+      <div class="site-footer-brand">Tutor Match</div>
+      <p>Helping learners and local tutors connect.</p>
+    </div>
+    <div class="site-footer-note">A brighter learning journey starts with the right support.</div>
+  </div>
+</footer>
+
+<script>
+  // ---------- settings ----------
+  const SUBJECTS = [
+    "Mathematics", "Physics", "Chemistry", "Biology", "English",
+    "Hindi", "Telugu", "Social Studies", "Computer Science"
+  ];
+
+  let token = localStorage.getItem("token");
+  let tutorAccepting = null;   // true = open, false = paused, null = no profile saved yet
+  let currentUser = null;      // the logged-in person's details (from /me)
+  let hasLoadedTutorResults = false;   // true once a search has run for the current user + area
+  let activeTutorOverview = null;
+  let overviewReturnPanel = "studentFindTab";
+  let pendingAvatar = { action: "keep", dataUrl: null };   // photo change waiting for "Save changes"
+  let requestExpiryTimer = null;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- small helpers ----------
+  function hourLabel(h) {
+    const suffix = h >= 12 ? "PM" : "AM";
+    const hh = h % 12 === 0 ? 12 : h % 12;
+    return hh + " " + suffix;
+  }
+
+  function fillSelect(select, items, selectedValue) {
+    select.innerHTML = "";
+    items.forEach(([value, label]) => {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      if (String(value) === String(selectedValue)) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function hourOptions() {
+    const list = [];
+    for (let h = 6; h <= 23; h++) list.push([h, hourLabel(h)]);
+    return list;
+  }
+
+  function classOptions() {
+    const list = [];
+    for (let c = 1; c <= 12; c++) list.push([c, "Class " + c]);
+    return list;
+  }
+
+  function showMsg(id, text, type) {
+    const box = $(id);
+    box.textContent = text;
+    box.className = "msg " + (type || "");
+  }
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;  // textContent = safe, no HTML injection
+    return node;
+  }
+
+  function whatsappLink(phone) {
+    const digits = String(phone).replace(/\D/g, "");
+    const a = el("a", "wa", "💬 Chat on WhatsApp");
+    a.href = "https://wa.me/91" + digits;
+    a.target = "_blank";
+    a.rel = "noopener";
+    return a;
+  }
+
+  function contactLink(kind, value) {
+    const link = document.createElement("a");
+    link.href = kind + ":" + value;
+    link.textContent = value;
+    return link;
+  }
+
+  // ---------- avatars (photo, or colored circle with initials) ----------
+  function initials(name) {
+    const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    const first = parts[0][0];
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+    return (first + last).toUpperCase();
+  }
+
+  function avatarColor(name) {
+    let h = 0;
+    for (const ch of String(name || "")) h = (h * 31 + ch.charCodeAt(0)) % 360;
+    return "hsl(" + h + ", 58%, 48%)";
+  }
+
+  // user = { name, avatar }  ->  draws the avatar inside `node`
+  function renderAvatar(node, user) {
+    node.innerHTML = "";
+    if (user.avatar) {
+      const img = document.createElement("img");
+      img.src = user.avatar;   // a small JPEG the server already checked
+      img.alt = "";
+      node.appendChild(img);
+      node.style.background = "#e4e7f5";
+    } else {
+      node.textContent = initials(user.name);
+      node.style.background = avatarColor(user.name);
+    }
+  }
+
+  function renderHomeSubjects() {
+    const icons = {
+      Mathematics: "∑", Physics: "⚛", Chemistry: "⚗", Biology: "✿",
+      English: "Aa", Hindi: "अ", Telugu: "అ", "Social Studies": "◎", "Computer Science": "</>",
+    };
+    const grid = $("homeSubjects");
+    SUBJECTS.forEach(subject => {
+      const button = el("button", "subject-tile");
+      button.type = "button";
+      const icon = el("span", "subject-icon", icons[subject] || subject.slice(0, 2));
+      icon.setAttribute("aria-hidden", "true");
+      button.appendChild(icon);
+      button.appendChild(el("span", "subject-name", subject));
+      button.onclick = () => selectHomeSubject(subject);
+      grid.appendChild(button);
+    });
+  }
+
+  // Clicking a subject tile: go to Find a tutor and search that subject right away
+  function selectHomeSubject(subject) {
+    $("fSubject").value = subject;
+    hasLoadedTutorResults = true;   // we search below, so the tab doesn't need to search a second time
+    showStudentTab("studentFindTab");
+    doSearch();
+  }
+
+  // Fills the avatar button + dropdown with the logged-in person's details
+  function applyUser(me) {
+    currentUser = me;
+    $("studentHeaderNav").classList.toggle("hidden", me.role !== "student");
+    $("tutorHeaderNav").classList.toggle("hidden", me.role !== "tutor");
+    renderAvatar($("avatarBtn"), me);
+    renderAvatar($("pmAvatar"), me);
+    $("pmName").textContent = me.name;
+    $("pmEmail").textContent = me.email;
+    $("pmRole").textContent = me.role === "tutor" ? "Tutor" : "Student / Parent";
+    $("pmArea").textContent = "📍 " + me.area_name;
+    if (me.role === "student") {
+      $("studentWelcome").textContent = me.name;
+      $("studentGreeting").textContent = me.name.split(/\s+/)[0] + ", let's find a tutor who fits.";
+      $("studentDetailEmail").textContent = me.email;
+      $("studentDetailArea").textContent = me.area_name;
+      renderAvatar($("studentHomeAvatar"), me);
+    } else {
+      $("tutorWelcome").textContent = me.name;
+      $("tutorGreeting").textContent = "" + me.name.split(/\s+/)[0] + ", your teaching journey starts here.";
+      $("tutorDetailEmail").textContent = me.email;
+      $("tutorDetailArea").textContent = me.area_name;
+      renderAvatar($("tutorHomeAvatar"), me);
+    }
+  }
+
+  // ---------- profile dropdown ----------
+  function toggleProfileMenu(ev) {
+    ev.stopPropagation();
+    $("profileMenu").classList.toggle("hidden");
+  }
+
+  function closeProfileMenu() {
+    $("profileMenu").classList.add("hidden");
+  }
+
+  // click anywhere else, or press Esc, to close the dropdown
+  document.addEventListener("click", (ev) => {
+    if (!ev.target.closest(".profile-wrap")) closeProfileMenu();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      closeProfileMenu();
+      if (!$("tutoringRequestModal").classList.contains("hidden")) closeTutoringRequestForm();
+    }
+  });
+
+  // ---------- edit profile ----------
+  function openEditProfile() {
+    closeProfileMenu();
+    if (!currentUser) return;
+    pendingAvatar = { action: "keep", dataUrl: null };
+    $("editPhoto").value = "";
+    $("editName").value = currentUser.name;
+    $("editArea").value = currentUser.area_id;
+    $("editEmail").value = currentUser.email;
+    $("tutorProfileEditFields").classList.toggle("hidden", currentUser.role !== "tutor");
+    $("photoHint").textContent = currentUser.role === "tutor"
+      ? "JPG or PNG. Students see this photo on your tutor card, so a clear face photo works best."
+      : "JPG or PNG. We shrink it to a small square automatically.";
+    renderAvatar($("editAvatarPreview"), currentUser);
+    showMsg("editMsg", "");
+    showMsg("tutorMsg", "");
+    $("studentView").classList.add("hidden");
+    $("tutorView").classList.add("hidden");
+    $("studentHeaderNav").classList.add("hidden");
+    $("tutorHeaderNav").classList.add("hidden");
+    $("editBox").classList.remove("hidden");
+    window.scrollTo(0, 0);
+  }
+
+  function closeEditProfile() {
+    $("editBox").classList.add("hidden");
+    if (!currentUser) return;
+    if (currentUser.role === "student") {
+      $("studentView").classList.remove("hidden");
+      $("studentHeaderNav").classList.remove("hidden");
+    } else {
+      $("tutorView").classList.remove("hidden");
+      $("tutorHeaderNav").classList.remove("hidden");
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function pickPhoto() {
+    $("editPhoto").click();
+  }
+
+  function removePhoto() {
+    pendingAvatar = { action: "remove", dataUrl: null };
+    renderAvatar($("editAvatarPreview"), { name: $("editName").value || currentUser.name, avatar: null });
+    showMsg("editMsg", "The photo will be removed when you press Save changes.", "");
+  }
+
+  // Shrinks the chosen picture to a 320x320 square JPEG, so it looks sharp on a card but stays small
+  function onPhotoChosen(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = "";   // lets you pick the same file again later
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showMsg("editMsg", "Please choose an image file.", "error");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const size = 320;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";           // white behind see-through PNGs
+      ctx.fillRect(0, 0, size, size);
+
+      // crop the middle square, then scale it down
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+
+      // start with good quality; if the file is too big, squeeze it a little more
+      let quality = 0.85;
+      let dataUrl = canvas.toDataURL("image/jpeg", quality);
+      while (dataUrl.length > 70000 && quality > 0.4) {
+        quality -= 0.15;
+        dataUrl = canvas.toDataURL("image/jpeg", quality);
+      }
+      URL.revokeObjectURL(url);
+
+      pendingAvatar = { action: "set", dataUrl: dataUrl };
+      renderAvatar($("editAvatarPreview"), { name: $("editName").value || currentUser.name, avatar: dataUrl });
+      showMsg("editMsg", "Photo ready. Press Save changes to keep it.", "");
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      showMsg("editMsg", "Couldn't read that image. Please try a JPG or PNG.", "error");
+    };
+    img.src = url;
+  }
+
+  async function saveProfile() {
+    const oldAreaId = currentUser.area_id;
+    try {
+      await api("/me/profile", "PUT", {
+        name: $("editName").value,
+        area_id: parseInt($("editArea").value),
+        avatar_action: pendingAvatar.action,
+        avatar: pendingAvatar.dataUrl,
+      });
+
+      const me = await api("/me");
+      applyUser(me);
+
+      // search results were measured from the old area, so clear them
+      if (me.area_id !== oldAreaId) {
+        $("results").innerHTML = "";
+        hasLoadedTutorResults = false;
+        $("studentTutorCount").textContent = "—";
+      }
+
+      pendingAvatar = { action: "keep", dataUrl: null };
+      renderAvatar($("editAvatarPreview"), me);
+      showMsg("editMsg", "Profile updated ✅", "ok");
+    } catch (e) {
+      showMsg("editMsg", e.message, "error");
+    }
+  }
+
+  // ---------- talking to the kitchen (API) ----------
+  async function api(path, method = "GET", body = null) {
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
+
+    const res = await fetch(path, {
+      method: method,
+      headers: headers,
+      body: body ? JSON.stringify(body) : null,
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+
+    if (!res.ok) {
+      let msg = "Something went wrong. Please try again.";
+      if (data && data.detail) {
+        msg = Array.isArray(data.detail) ? data.detail.map(d => d.msg).join(", ") : data.detail;
+      }
+      // 401 while logged in = the wristband expired -> back to the front door
+      if (res.status === 401 && token && path !== "/logout") {
+        sessionExpired();
+      }
+      const err = new Error(msg);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
+
+  // ---------- switching screens ----------
+  function showOnly(viewId) {
+    ["authView", "studentView", "tutorView"].forEach(id => $(id).classList.add("hidden"));
+    $(viewId).classList.remove("hidden");
+  }
+
+  function showStudentTab(panelId) {
+    const tabs = {
+      studentHomeTab: "studentTabHome",
+      studentFindTab: "studentTabFind",
+      studentRequestsTab: "studentTabRequests",
+      studentAboutTab: "studentTabAbout",
+    };
+    Object.entries(tabs).forEach(([panel, tab]) => {
+      $(panel).classList.toggle("hidden", panel !== panelId);
+      $(tab).classList.toggle("active", panel === panelId);
+      $(tab).setAttribute("aria-current", panel === panelId ? "page" : "false");
+    });
+    $("tutorOverviewPage").classList.add("hidden");
+    if (panelId === "studentFindTab" && !hasLoadedTutorResults) doSearch();
+  }
+
+  function showTutorTab(panelId) {
+    const tabs = {
+      tutorHomeTab: "tutorTabHome",
+      tutorRequestsTab: "tutorTabRequests",
+      tutorAboutTab: "tutorTabAbout",
+    };
+    Object.entries(tabs).forEach(([panel, tab]) => {
+      $(panel).classList.toggle("hidden", panel !== panelId);
+      $(tab).classList.toggle("active", panel === panelId);
+      $(tab).setAttribute("aria-current", panel === panelId ? "page" : "false");
+    });
+  }
+
+  function showAuthTab(which) {
+    $("loginForm").classList.toggle("hidden", which !== "login");
+    $("signupForm").classList.toggle("hidden", which !== "signup");
+    $("forgotForm").classList.toggle("hidden", which !== "forgot");
+    $("tabLogin").classList.toggle("active", which === "login");
+    $("tabSignup").classList.toggle("active", which === "signup");
+    showMsg("authMsg", "");
+  }
+
+  // ---------- login / signup / logout ----------
+  async function doLogin() {
+    try {
+      const data = await api("/login", "POST", {
+        email: $("loginEmail").value,
+        password: $("loginPassword").value,
+      });
+      token = data.token;
+      localStorage.setItem("token", token);
+      await startApp();
+    } catch (e) {
+      showMsg("authMsg", e.message, "error");
+    }
+  }
+
+  async function doSignup() {
+    try {
+      const data = await api("/signup", "POST", {
+        name: $("signupName").value,
+        email: $("signupEmail").value,
+        password: $("signupPassword").value,
+        role: $("signupRole").value,
+        area_id: parseInt($("signupArea").value),
+      });
+      token = data.token;
+      localStorage.setItem("token", token);
+      await startApp();
+    } catch (e) {
+      showMsg("authMsg", e.message, "error");
+    }
+  }
+
+  // Wipes everything from the screen and goes back to the login page
+  function resetToLoggedOut() {
+    window.clearTimeout(requestExpiryTimer);
+    requestExpiryTimer = null;
+    token = null;
+    localStorage.removeItem("token");
+    tutorAccepting = null;
+    currentUser = null;
+    hasLoadedTutorResults = false;
+    activeTutorOverview = null;
+    pendingAvatar = { action: "keep", dataUrl: null };
+    closeProfileMenu();
+    $("userInfo").classList.add("hidden");
+    $("studentHeaderNav").classList.add("hidden");
+    $("tutorHeaderNav").classList.add("hidden");
+    $("editBox").classList.add("hidden");
+    $("avatarBtn").innerHTML = "";
+    ["results", "myTrialRequests", "myTutoringRequests", "inboxContactRequests", "inboxTrials", "inboxTutoring"]
+      .forEach(id => { $(id).innerHTML = ""; });
+    $("studentTutorCount").textContent = "—";
+    ["tutorMsg", "searchMsg", "inboxMsg", "availMsg", "editMsg"].forEach(id => showMsg(id, ""));
+    $("loginPassword").value = "";
+    $("editPhoto").value = "";
+    showOnly("authView");
+    showAuthTab("login");
+  }
+
+  async function logout() {
+    // Tell the server to deactivate the wristband, not just forget it here
+    if (token) {
+      try { await api("/logout", "POST"); } catch (e) {}
+    }
+    resetToLoggedOut();
+  }
+
+  function sessionExpired() {
+    resetToLoggedOut();
+    showMsg("authMsg", "Your login expired. Please log in again.", "error");
+  }
+
+  // ---------- forgot password ----------
+  function openForgot() {
+    showAuthTab("forgot");
+    $("forgotEmail").value = $("loginEmail").value;
+    $("resetCode").value = "";
+    $("resetNewPassword").value = "";
+    $("forgotStep2").classList.add("hidden");
+  }
+
+  async function sendResetCode() {
+    try {
+      const data = await api("/forgot-password", "POST", { email: $("forgotEmail").value });
+      $("forgotStep2").classList.remove("hidden");
+      let text = data.message;
+      if (!data.email_enabled) {
+        text += " (Email isn't set up on this server yet, so look for the code in the server terminal.)";
+      }
+      showMsg("authMsg", text, "ok");
+    } catch (e) {
+      showMsg("authMsg", e.message, "error");
+    }
+  }
+
+  async function doResetPassword() {
+    try {
+      await api("/reset-password", "POST", {
+        email: $("forgotEmail").value,
+        code: $("resetCode").value,
+        new_password: $("resetNewPassword").value,
+      });
+      $("loginEmail").value = $("forgotEmail").value;
+      $("loginPassword").value = "";
+      $("resetCode").value = "";
+      $("resetNewPassword").value = "";
+      showAuthTab("login");
+      showMsg("authMsg", "Password changed! Please log in with your new password.", "ok");
+    } catch (e) {
+      showMsg("authMsg", e.message, "error");
+    }
+  }
+
+  // ---------- student: search ----------
+  async function doSearch() {
+    const fromHour = $("fFrom").value;
+    const toHour = $("fTo").value;
+    if (Boolean(fromHour) !== Boolean(toHour)) {
+      showMsg("searchMsg", "Choose both a start and end time, or leave both as Any time.", "error");
+      return;
+    }
+    showMsg("searchMsg", "Searching...", "");
+    try {
+      const data = await api("/search", "POST", {
+        subject: $("fSubject").value || null,
+        class_level: $("fClass").value ? parseInt($("fClass").value) : null,
+        from_hour: fromHour ? parseInt(fromHour) : null,
+        to_hour: toHour ? parseInt(toHour) : null,
+        radius_km: $("fRadius").value ? parseFloat($("fRadius").value) : null,
+      });
+      hasLoadedTutorResults = true;
+      showMsg("searchMsg", "");
+      renderResults(data);
+    } catch (e) {
+      showMsg("searchMsg", e.message, "error");
+    }
+  }
+
+  function clearTutorFilters() {
+    ["fSubject", "fClass", "fFrom", "fTo", "fRadius"].forEach(id => {
+      $(id).value = "";
+    });
+    doSearch();
+  }
+
+  function renderResults(data) {
+    const box = $("results");
+    box.innerHTML = "";
+    $("studentTutorCount").textContent = data.tutors_found;
+
+    const resultsHead = el("div", "find-results-head");
+    const resultTitle = el("div");
+    resultTitle.appendChild(el("h3", "", "Tutors for you"));
+    resultTitle.appendChild(el("p", "find-results-summary",
+      data.tutors_checked + " tutors checked · " + data.tutors_available + " taking new students"));
+    resultsHead.appendChild(resultTitle);
+    const resultCount = el("div", "find-results-count");
+    resultCount.appendChild(document.createTextNode("Matches "));
+    resultCount.appendChild(el("strong", "", String(data.tutors_found)));
+    resultsHead.appendChild(resultCount);
+    box.appendChild(resultsHead);
+
+    if (data.tutors_found === 0) {
+      const empty = el("div", "find-empty-state");
+      empty.appendChild(el("div", "find-empty-icon", "…"));
+      empty.appendChild(el("h3", "", "No tutors found this time"));
+      empty.appendChild(el("p", "", "Try adjusting your filters or clear them to see all available tutor profiles."));
+      box.appendChild(empty);
+      return;
+    }
+
+    // all the tutor cards sit in one grid (3 across on a laptop, 1 on a phone)
+    const grid = el("div", "tutor-grid");
+    data.tutors.forEach(t => grid.appendChild(buildTutorCard(t)));
+    box.appendChild(grid);
+  }
+
+  // Keep the search card compact; the full profile and contact actions live in the overview.
+  function buildTutorCard(t) {
+    const card = el("article", "tutor-card");
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", "View " + t.name + "'s tutor profile");
+    card.onclick = () => openTutorOverview(t);
+    card.onkeydown = (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openTutorOverview(t);
+      }
+    };
+
+    const photo = el("div", "tutor-photo");
+    renderAvatar(photo, t);
+    card.appendChild(photo);
+
+    const body = el("div", "tutor-body");
+    body.appendChild(el("h3", "tutor-name", t.name));
+    body.appendChild(el("p", "tutor-qual", "🎓 " + t.qualification));
+
+    const pills = el("div", "tutor-pills");
+    t.subjects.forEach(s => pills.appendChild(el("span", "subject-pill", s)));
+    body.appendChild(pills);
+    if (t.review_count > 0) {
+      const rating = Number(t.rating_average);
+      const reviewSummary = el("p", "tutor-review-summary");
+      reviewSummary.appendChild(el("span", "review-stars",
+        "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating))));
+      reviewSummary.appendChild(document.createTextNode(
+        " " + rating.toFixed(1) + " · " + t.review_count +
+        (t.review_count === 1 ? " review" : " reviews")
+      ));
+      body.appendChild(reviewSummary);
+    }
+
+    card.appendChild(body);
+    return card;
+  }
+
+  async function openTutorOverview(tutor) {
+    activeTutorOverview = tutor;
+    const selectedPanel = document.querySelector("#studentView .student-panel:not(.hidden)");
+    if (selectedPanel && selectedPanel.id !== "tutorOverviewPage") {
+      overviewReturnPanel = selectedPanel.id;
+    }
+    document.querySelectorAll("#studentView .student-panel").forEach(panel => {
+      panel.classList.add("hidden");
+    });
+    $("tutorOverviewPage").classList.remove("hidden");
+    $("overviewBackButton").textContent = overviewReturnPanel === "studentRequestsTab"
+      ? "← Back to requests" : "← Back to tutors";
+    $("overviewLoading").classList.remove("hidden");
+    $("overviewContent").classList.add("hidden");
+    $("overviewLoading").textContent = "Loading tutor overview...";
+    showMsg("trialMsg", "");
+    try {
+      const profile = await api("/tutors/" + tutor.tutor_id);
+      renderTutorOverview(profile);
+      $("overviewLoading").classList.add("hidden");
+      $("overviewContent").classList.remove("hidden");
+    } catch (e) {
+      $("overviewLoading").textContent = e.message;
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function closeTutorOverview() {
+    activeTutorOverview = null;
+    showStudentTab(overviewReturnPanel);
+    window.scrollTo(0, 0);
+  }
+
+  function renderTutorOverview(profile) {
+    renderAvatar($("overviewAvatar"), profile);
+    $("overviewName").textContent = profile.name;
+    $("overviewQualification").textContent = profile.qualification;
+    $("overviewBio").textContent = profile.bio || "This tutor hasn't added an introduction yet.";
+    $("overviewSubjects").innerHTML = "";
+    profile.subjects.forEach(subject => $("overviewSubjects").appendChild(el("span", "subject-pill", subject)));
+    const facts = $("overviewFacts");
+    facts.innerHTML = "";
+    facts.appendChild(el("span", "", "Classes " + profile.min_class + "–" + profile.max_class));
+    facts.appendChild(el("span", "", "📍 " + profile.area_name));
+    facts.appendChild(el("span", "", "🕓 " + hourLabel(profile.available_from) +
+      " – " + hourLabel(profile.available_to)));
+    if (profile.max_hours_per_day) {
+      facts.appendChild(el("span", "", "Up to " + profile.max_hours_per_day + " teaching hours/day"));
+    }
+
+    const average = profile.rating_average;
+    $("overviewRating").innerHTML = "";
+    if (average === null) {
+      $("overviewRating").textContent = "No reviews yet";
+    } else {
+      const stars = el("span", "review-stars", "★".repeat(Math.round(average)) + "☆".repeat(5 - Math.round(average)));
+      $("overviewRating").appendChild(stars);
+      $("overviewRating").appendChild(document.createTextNode(" " + Number(average).toFixed(1) + " / 5 · " + profile.reviews.length + " review(s)"));
+    }
+
+    const reviews = $("overviewReviews");
+    reviews.innerHTML = "";
+    if (profile.reviews.length === 0) {
+      reviews.appendChild(el("p", "muted", "No reviews have been shared yet."));
+    } else {
+      profile.reviews.forEach(review => {
+        const item = el("article", "review-entry");
+        const heading = el("strong", "", review.student_name);
+        heading.appendChild(document.createTextNode(" "));
+        heading.appendChild(el("span", "review-stars",
+          "★".repeat(review.rating) + "☆".repeat(5 - review.rating)));
+        item.appendChild(heading);
+        item.appendChild(el("p", "muted", review.review));
+        reviews.appendChild(item);
+      });
+    }
+
+    const reviewWrap = $("reviewFormWrap");
+    reviewWrap.innerHTML = "";
+    if (profile.can_review && !profile.existing_review) {
+      const form = el("div", "review-form");
+      form.appendChild(el("h4", "", "Share your experience"));
+      const rating = document.createElement("select");
+      rating.id = "reviewRating";
+      fillSelect(rating, [[5, "5 stars"], [4, "4 stars"], [3, "3 stars"], [2, "2 stars"], [1, "1 star"]], 5);
+      const text = document.createElement("textarea");
+      text.id = "reviewText";
+      text.maxLength = 500;
+      text.placeholder = "Write a review (10–500 characters)";
+      const msg = el("div", "msg");
+      msg.id = "reviewMsg";
+      const submit = el("button", "small", "Submit review");
+      submit.onclick = () => submitTutorReview(Number(rating.value), text.value, msg);
+      form.appendChild(rating);
+      form.appendChild(text);
+      form.appendChild(submit);
+      form.appendChild(msg);
+      reviewWrap.appendChild(form);
+    } else if (profile.existing_review) {
+      reviewWrap.appendChild(el("p", "muted", "You have already reviewed this tutor."));
+    } else {
+      reviewWrap.appendChild(el("p", "muted", "You can leave a review after this tutor accepts your request."));
+    }
+
+    fillSelect($("trialClass"), classOptions().filter(([value]) =>
+      value >= profile.min_class && value <= profile.max_class), "");
+    fillSelect($("trialSubject"), profile.subjects.map(subject => [subject, subject]), "");
+    fillSelect($("bookingClass"), classOptions().filter(([value]) =>
+      value >= profile.min_class && value <= profile.max_class), "");
+    const bookingSubjects = $("bookingSubjects");
+    bookingSubjects.innerHTML = "";
+    profile.subjects.forEach(subject => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = subject;
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(subject));
+      bookingSubjects.appendChild(label);
+    });
+    $("trialParentName").value = currentUser.name;
+    $("trialEmail").value = currentUser.email;
+    $("trialChildName").value = "";
+    $("trialPhone").value = "";
+    $("trialMessage").value = "";
+    $("trialDate").value = localDateString(new Date());
+    $("trialDate").min = localDateString(new Date());
+    $("trialTime").value = "";
+    $("bookingChildName").value = "";
+    $("bookingPhone").value = "";
+    $("bookingMessage").value = "";
+    $("bookingFrom").value = "";
+    $("bookingTo").value = "";
+    const today = localDateString(new Date());
+    $("bookingStartDate").min = today;
+    $("bookingStartDate").value = today;
+    $("bookingEndDate").min = today;
+    $("bookingEndDate").value = today;
+    $("bookingStartDate").onchange = () => {
+      const startDate = $("bookingStartDate").value;
+      $("bookingEndDate").min = startDate;
+      if ($("bookingEndDate").value < startDate) $("bookingEndDate").value = startDate;
+    };
+    $("bookingSubjects").querySelectorAll("input").forEach(subject => { subject.checked = false; });
+    document.querySelectorAll("#bookingWeekdays input").forEach(day => { day.checked = false; });
+    $("tutoringRequestModal").classList.add("hidden");
+    document.body.style.overflow = "";
+    $("openTutoringRequestButton").classList.toggle("hidden", !profile.is_accepting);
+    showMsg("trialMsg", "");
+    showMsg("bookingMsg", "");
+  }
+
+  function localDateString(value) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+  }
+
+  async function submitTrialBooking() {
+    const tutor = activeTutorOverview;
+    if (!tutor) return;
+    const submitButton = $("trialSubmitButton");
+    submitButton.disabled = true;
+    showMsg("trialMsg", "");
+    try {
+      const data = await api("/trials", "POST", {
+        tutor_id: tutor.tutor_id,
+        child_name: $("trialChildName").value,
+        phone: $("trialPhone").value,
+        class_level: parseInt($("trialClass").value),
+        subject: $("trialSubject").value,
+        preferred_date: $("trialDate").value,
+        preferred_time: $("trialTime").value,
+        message: $("trialMessage").value,
+      });
+      showMsg("trialMsg", data.message, "ok");
+      loadMyRequests();
+    } catch (e) {
+      showMsg("trialMsg", e.message, "error");
+    } finally {
+      submitButton.disabled = false;
+    }
+  }
+
+  function openTutoringRequestForm() {
+    $("tutoringRequestModal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    $("bookingChildName").focus();
+  }
+
+  function closeTutoringRequestForm() {
+    $("tutoringRequestModal").classList.add("hidden");
+    document.body.style.overflow = "";
+    $("openTutoringRequestButton").focus();
+  }
+
+  function handleTutoringModalBackdrop(event) {
+    if (event.target === $("tutoringRequestModal")) closeTutoringRequestForm();
+  }
+
+  async function submitTutoringRequest() {
+    const tutor = activeTutorOverview;
+    if (!tutor) return;
+    const submitButton = $("bookingSubmitButton");
+    submitButton.disabled = true;
+    showMsg("bookingMsg", "");
+    try {
+      const subjects = Array.from(document.querySelectorAll("#bookingSubjects input:checked"))
+        .map(subject => subject.value);
+      const weekdays = Array.from(document.querySelectorAll("#bookingWeekdays input:checked"))
+        .map(day => day.value);
+      const data = await api("/booking-requests", "POST", {
+        tutor_id: tutor.tutor_id,
+        child_name: $("bookingChildName").value,
+        phone: $("bookingPhone").value,
+        class_level: parseInt($("bookingClass").value),
+        subjects,
+        weekdays,
+        start_date: $("bookingStartDate").value,
+        end_date: $("bookingEndDate").value,
+        preferred_from: $("bookingFrom").value,
+        preferred_to: $("bookingTo").value,
+        message: $("bookingMessage").value,
+      });
+      showMsg("bookingMsg", data.message, "ok");
+      loadMyRequests();
+    } catch (e) {
+      showMsg("bookingMsg", e.message, "error");
+    } finally {
+      submitButton.disabled = false;
+    }
+  }
+
+  async function submitTutorReview(rating, review, msg) {
+    if (!activeTutorOverview) return;
+    try {
+      await api("/tutors/" + activeTutorOverview.tutor_id + "/reviews", "POST", { rating, review });
+      await openTutorOverview(activeTutorOverview);
+    } catch (e) {
+      msg.textContent = e.message;
+      msg.className = "msg error";
+    }
+  }
+
+  function appendContactVisibilityControl(item, endpoint, visible, otherPerson, reload) {
+    const controls = el("div", "request-actions");
+    const button = el("button", "small ghost", visible
+      ? "Hide my contact details from " + otherPerson
+      : "Share my contact details with " + otherPerson);
+    button.type = "button";
+    button.onclick = async () => {
+      button.disabled = true;
+      try {
+        await api(endpoint, "POST", { visible: !visible });
+        await reload();
+      } catch (e) {
+        button.disabled = false;
+        controls.appendChild(el("p", "msg error", e.message));
+      }
+    };
+    controls.appendChild(button);
+    item.appendChild(controls);
+  }
+
+  function appendStudentRequestDelete(item, endpoint, status, reload) {
+    if (status === "pending") {
+      return;
+    }
+    const controls = el("div", "request-actions");
+    const button = el("button", "small danger", "Delete request");
+    button.type = "button";
+    button.onclick = async () => {
+      if (!window.confirm("Delete this completed request from your list?")) return;
+      button.disabled = true;
+      try {
+        await api(endpoint, "DELETE");
+        await reload();
+      } catch (e) {
+        button.disabled = false;
+        controls.appendChild(el("p", "msg error", e.message));
+      }
+    };
+    controls.appendChild(button);
+    item.appendChild(controls);
+  }
+
+  function appendTutorRequestDelete(item, endpoint, status, reload) {
+    if (status !== "accepted" && status !== "declined") return;
+    const controls = el("div", "request-actions");
+    const button = el("button", "small danger", "Delete request");
+    button.type = "button";
+    button.onclick = async () => {
+      if (!window.confirm("Delete this resolved request from your inbox?")) return;
+      button.disabled = true;
+      try {
+        await api(endpoint, "DELETE");
+        await reload();
+      } catch (e) {
+        button.disabled = false;
+        controls.appendChild(el("p", "msg error", e.message));
+      }
+    };
+    controls.appendChild(button);
+    item.appendChild(controls);
+  }
+
+  function appendStudentRequestEdit(item, request) {
+    if (request.status !== "pending" || !request.can_edit) return;
+    const controls = el("div", "request-actions");
+    const button = el("button", "small ghost", "Edit request");
+    button.type = "button";
+    button.onclick = async () => {
+      button.disabled = true;
+      try {
+        const profile = await api("/tutors/" + request.tutor_id);
+        const form = el("div", "decline-reason-form request-edit-form");
+        const controlsByKey = {};
+        const addField = (key, title, type, value) => {
+          const label = el("label", "", title);
+          const input = document.createElement(type === "textarea" ? "textarea" : "input");
+          if (type !== "textarea") input.type = type;
+          if (type === "textarea") input.maxLength = 300;
+          input.value = value || "";
+          label.appendChild(input);
+          form.appendChild(label);
+          controlsByKey[key] = input;
+        };
+
+        addField("child_name", "Student name", "text", request.child_name);
+        addField("phone", "Parent / contact phone", "tel", request.phone || "");
+        const classLabel = el("label", "", "Class");
+        const classSelect = document.createElement("select");
+        fillSelect(classSelect, classOptions().filter(([value]) =>
+          value >= profile.min_class && value <= profile.max_class), request.class_level);
+        classLabel.appendChild(classSelect);
+        form.appendChild(classLabel);
+        controlsByKey.class_level = classSelect;
+
+        const subjectsBox = el("div", "checks");
+        form.appendChild(el("label", "", "Subjects"));
+        form.appendChild(subjectsBox);
+        const selectedSubjects = new Set(request.subject.split(",").map(value => value.trim()));
+        profile.subjects.forEach(subject => {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = subject;
+          checkbox.checked = selectedSubjects.has(subject);
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(subject));
+          subjectsBox.appendChild(label);
+        });
+        controlsByKey.subjects = subjectsBox;
+
+        const today = localDateString(new Date());
+        addField("start_date", "Start date", "date", request.start_date || today);
+        addField("end_date", "End date", "date", request.end_date || today);
+        controlsByKey.start_date.min = today;
+        controlsByKey.end_date.min = controlsByKey.start_date.value;
+        controlsByKey.start_date.onchange = () => {
+          controlsByKey.end_date.min = controlsByKey.start_date.value;
+          if (controlsByKey.end_date.value < controlsByKey.start_date.value) {
+            controlsByKey.end_date.value = controlsByKey.start_date.value;
+          }
+        };
+
+        const weekdaysBox = el("div", "checks");
+        form.appendChild(el("label", "", "Preferred days"));
+        form.appendChild(weekdaysBox);
+        const selectedDays = new Set(request.weekdays.split(",").map(value => value.trim()));
+        ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+          .forEach(day => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = day;
+            checkbox.checked = selectedDays.has(day);
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(day.slice(0, 3)));
+            weekdaysBox.appendChild(label);
+          });
+        controlsByKey.weekdays = weekdaysBox;
+
+        addField("preferred_from", "Preferred time from", "time", request.preferred_from);
+        addField("preferred_to", "Preferred time until", "time", request.preferred_to);
+        addField("message", "Message (optional)", "textarea", request.message);
+
+        const message = el("div", "msg");
+        const actions = el("div", "btns");
+        const save = el("button", "small", "Save changes");
+        const cancel = el("button", "small ghost", "Cancel");
+        save.type = "button";
+        cancel.type = "button";
+        cancel.onclick = () => form.remove();
+        save.onclick = async () => {
+          save.disabled = true;
+          const payload = {
+            tutor_id: request.tutor_id,
+            child_name: controlsByKey.child_name.value,
+            phone: controlsByKey.phone.value,
+            class_level: Number(controlsByKey.class_level.value),
+            subjects: Array.from(controlsByKey.subjects.querySelectorAll("input:checked"))
+              .map(input => input.value),
+            weekdays: Array.from(controlsByKey.weekdays.querySelectorAll("input:checked"))
+              .map(input => input.value),
+            start_date: controlsByKey.start_date.value,
+            end_date: controlsByKey.end_date.value,
+            preferred_from: controlsByKey.preferred_from.value,
+            preferred_to: controlsByKey.preferred_to.value,
+            message: controlsByKey.message.value,
+          };
+          try {
+            await api("/booking-requests/" + request.id, "PATCH", payload);
+            await loadMyRequests();
+          } catch (e) {
+            save.disabled = false;
+            message.textContent = e.message;
+            message.className = "msg error";
+          }
+        };
+        actions.appendChild(save);
+        actions.appendChild(cancel);
+        form.appendChild(actions);
+        form.appendChild(message);
+        item.appendChild(form);
+        button.disabled = false;
+      } catch (e) {
+        button.disabled = false;
+        controls.appendChild(el("p", "msg error", e.message));
+      }
+    };
+    const hint = el("p", "muted", "Editable for 5 minutes after sending.");
+    controls.appendChild(button);
+    controls.appendChild(hint);
+    item.appendChild(controls);
+    window.setTimeout(() => {
+      if (!button.isConnected) return;
+      button.remove();
+    }, Math.max(0, Number(request.edit_seconds_remaining || 0)) * 1000);
+  }
+
+  function showDeclineReasonForm(item, onDecline) {
+    if (item.querySelector(".decline-reason-form")) return;
+    const form = el("div", "decline-reason-form");
+    const label = el("label", "", "Reason for declining (required)");
+    const reason = document.createElement("textarea");
+    reason.maxLength = 300;
+    reason.required = true;
+    reason.placeholder = "Briefly explain why you cannot accept this request.";
+    const message = el("div", "msg");
+    const actions = el("div", "btns");
+    const submit = el("button", "small danger", "Submit decline");
+    const cancel = el("button", "small ghost", "Cancel");
+    submit.type = "button";
+    cancel.type = "button";
+    submit.onclick = async () => {
+      if (!reason.value.trim()) {
+        message.textContent = "Please provide a reason before declining.";
+        message.className = "msg error";
+        reason.focus();
+        return;
+      }
+      submit.disabled = true;
+      try {
+        await onDecline(reason.value.trim());
+      } catch (e) {
+        submit.disabled = false;
+        message.textContent = e.message;
+        message.className = "msg error";
+      }
+    };
+    cancel.onclick = () => form.remove();
+    form.appendChild(label);
+    form.appendChild(reason);
+    actions.appendChild(submit);
+    actions.appendChild(cancel);
+    form.appendChild(actions);
+    form.appendChild(message);
+    item.appendChild(form);
+    reason.focus();
+  }
+
+  function requestPerson(name, avatar, label) {
+    const identity = el("div", "request-person");
+    const photo = el("div", "request-person-avatar");
+    renderAvatar(photo, { name, avatar });
+    identity.appendChild(photo);
+    identity.appendChild(label);
+    return identity;
+  }
+
+  function requestTutorLink(tutorId, tutorName, tutorAvatar) {
+    const button = el("button", "request-tutor-link ghost", tutorName + " · View profile →");
+    button.type = "button";
+    button.onclick = () => openTutorOverview({ tutor_id: tutorId });
+    return requestPerson(tutorName, tutorAvatar, button);
+  }
+
+  // ---------- student: my requests ----------
+  async function loadMyRequests() {
+    try {
+      const [trials, tutoring] = await Promise.all([
+        api("/trials/sent"),
+        api("/booking-requests/sent"),
+      ]);
+
+      const pendingCount = [...trials, ...tutoring].filter(r => r.status === "pending").length;
+      const acceptedCount = [...trials, ...tutoring].filter(r => r.status === "accepted").length;
+      $("studentPendingCount").textContent = pendingCount;
+      $("studentAcceptedCount").textContent = acceptedCount;
+      $("requestsPendingSummary").textContent = pendingCount;
+      $("requestsAcceptedSummary").textContent = acceptedCount;
+      $("requestsTotalSummary").textContent = trials.length + tutoring.length;
+      renderMyTrialRequests(trials);
+      renderMyTutoringRequests(tutoring);
+      $("myTrialRequestCount").textContent =
+        $("myTrialRequests").querySelectorAll(".req").length;
+      $("myTutoringRequestCount").textContent =
+        $("myTutoringRequests").querySelectorAll(".req").length;
+      $("requestTabCount").textContent = trials.length + tutoring.length;
+    } catch (e) {
+      for (const id of ["myTrialRequests", "myTutoringRequests"]) {
+        const box = $(id);
+        box.innerHTML = "";
+        box.appendChild(el("p", "msg error", e.message));
+      }
+    }
+  }
+
+  function renderMyTutoringRequests(requests) {
+    const box = $("myTutoringRequests");
+    box.innerHTML = "";
+    if (requests.length === 0) {
+      box.appendChild(el("p", "muted", "No tutoring requests yet."));
+      return;
+    }
+    requests.forEach(request => {
+      const item = el("div", "req");
+      const top = el("div", "top");
+      top.appendChild(requestTutorLink(request.tutor_id, request.tutor_name, request.tutor_avatar));
+      const statusLabel = request.status === "accepted" ? "Accepted ✅"
+        : request.status === "declined" ? "Declined" : "Waiting ⏳";
+      const statusClass = request.status === "accepted" ? "badge"
+        : request.status === "declined" ? "badge declined" : "badge pending";
+      top.appendChild(el("span", statusClass, statusLabel));
+      item.appendChild(top);
+
+      const details = el("div", "request-details");
+      details.appendChild(el("p", "", "📍 " + request.area_name));
+      details.appendChild(el("p", "", request.child_name + " · Class " +
+        request.class_level + " · " + request.subject));
+      details.appendChild(el("p", "", "📅 " + (request.start_date || "Date not specified") +
+        " to " + (request.end_date || "Date not specified")));
+      details.appendChild(el("p", "", request.weekdays + " · " +
+        request.preferred_from + "–" + request.preferred_to));
+      if (request.message) details.appendChild(el("p", "quote", "“" + request.message + "”"));
+      if (request.status === "accepted") {
+        const contact = el("div", "request-actions");
+        if (request.tutor_contact_hidden) {
+          contact.appendChild(el("p", "muted", "Tutor has hidden their contact details."));
+        } else {
+          contact.appendChild(el("p", "phone", "Tutor phone: " + (request.tutor_phone || "Not provided")));
+          if (request.tutor_phone) contact.appendChild(whatsappLink(request.tutor_phone));
+          if (request.tutor_email) {
+            const email = el("p", "muted", "Tutor email: ");
+            email.appendChild(contactLink("mailto", request.tutor_email));
+            contact.appendChild(email);
+          }
+        }
+        details.appendChild(contact);
+        appendContactVisibilityControl(
+          item, "/booking-requests/" + request.id + "/contact-visibility",
+          !request.student_contact_hidden, "the tutor", loadMyRequests
+        );
+      } else if (request.status === "pending") {
+        details.appendChild(el("p", "muted", "Contact details are shared after the tutor accepts."));
+      } else if (request.decline_reason) {
+        details.appendChild(el("p", "quote", "Tutor's reason: " + request.decline_reason));
+      }
+      item.appendChild(details);
+      appendStudentRequestDelete(
+        item, "/booking-requests/" + request.id, request.status, loadMyRequests
+      );
+      appendStudentRequestEdit(item, request);
+      box.appendChild(item);
+    });
+  }
+
+  function renderMyTrialRequests(trials) {
+    const box = $("myTrialRequests");
+    box.innerHTML = "";
+    if (trials.length === 0) {
+      box.appendChild(el("p", "muted", "No free-trial requests yet."));
+      return;
+    }
+    trials.forEach(trial => {
+      const item = el("div", "req");
+      const top = el("div", "top");
+      top.appendChild(requestTutorLink(trial.tutor_id, trial.tutor_name, trial.tutor_avatar));
+      const label = trial.status === "accepted" ? "Confirmed ✅"
+        : trial.status === "declined" ? "Declined" : "Waiting ⏳";
+      const statusClass = trial.status === "accepted" ? "badge"
+        : trial.status === "declined" ? "badge declined" : "badge pending";
+      top.appendChild(el("span", statusClass, label));
+      item.appendChild(top);
+      const details = el("div", "request-details");
+      details.appendChild(el("p", "", "📍 " + trial.area_name));
+      details.appendChild(el("p", "", trial.child_name + " · Class " + trial.class_level + " · " + trial.subject));
+      details.appendChild(el("p", "", "🗓 Preferred time: " + trial.preferred_date + " at " + trial.preferred_time));
+      if (trial.message) details.appendChild(el("p", "quote", "“" + trial.message + "”"));
+      if (trial.status === "accepted") {
+        const contact = el("div", "request-actions");
+        if (trial.tutor_contact_hidden) {
+          contact.appendChild(el("p", "muted", "Tutor has hidden their contact details."));
+        } else {
+          contact.appendChild(el("p", "phone", "Tutor phone: " + (trial.tutor_phone || "Not provided")));
+          if (trial.tutor_phone) contact.appendChild(whatsappLink(trial.tutor_phone));
+          if (trial.tutor_email) {
+            const email = el("p", "muted", "Tutor email: ");
+            email.appendChild(contactLink("mailto", trial.tutor_email));
+            contact.appendChild(email);
+          }
+        }
+        details.appendChild(contact);
+        appendContactVisibilityControl(
+          item, "/trials/" + trial.id + "/contact-visibility",
+          !trial.student_contact_hidden, "the tutor", loadMyRequests
+        );
+      } else if (trial.status === "declined" && trial.decline_reason) {
+        details.appendChild(el("p", "quote", "Tutor's reason: " + trial.decline_reason));
+      }
+      item.appendChild(details);
+      appendStudentRequestDelete(item, "/trials/" + trial.id, trial.status, loadMyRequests);
+      box.appendChild(item);
+    });
+  }
+
+  // ---------- tutor: availability (the OPEN / CLOSED sign) ----------
+  function renderAvailability() {
+    const text = $("availText");
+    const btn = $("availBtn");
+
+    if (tutorAccepting === null) {
+      text.textContent = "Complete your teaching profile from Edit profile before you start accepting students.";
+      btn.className = "hidden";
+      $("availabilityBadge").textContent = "Profile needed";
+      $("availabilityBadge").className = "badge off";
+      $("tutorProfileStatus").textContent = "Not ready";
+      return;
+    }
+
+    if (tutorAccepting) {
+      text.textContent = "✅ You're showing as Available. Students can send you contact requests.";
+      btn.textContent = "⏸ Pause: I'm full right now";
+      btn.className = "danger";
+      $("availabilityBadge").textContent = "Open for students";
+      $("availabilityBadge").className = "badge";
+    } else {
+      text.textContent = "⛔ You're showing as Not available. Students can still see your card, but they can't send you new requests. Pending requests and students you already accepted are not affected.";
+      btn.textContent = "▶ Start taking students again";
+      btn.className = "good";
+      $("availabilityBadge").textContent = "Paused";
+      $("availabilityBadge").className = "badge off";
+    }
+    $("tutorProfileStatus").textContent = "Complete";
+  }
+
+  async function toggleAvailability() {
+    showMsg("availMsg", "");
+    try {
+      await api("/tutor/availability", "PUT", { accepting: !tutorAccepting });
+      tutorAccepting = !tutorAccepting;
+      renderAvailability();
+    } catch (e) {
+      showMsg("availMsg", e.message, "error");
+    }
+  }
+
+  // ---------- tutor: profile ----------
+  async function saveTutorProfile() {
+    const subjects = Array.from(document.querySelectorAll("#tSubjects input:checked"))
+      .map(cb => cb.value);
+    const maxHours = $("tMaxHours").value;
+
+    try {
+      await api("/tutor/profile", "PUT", {
+        qualification: $("tQualification").value,
+        bio: $("tBio").value,
+        subjects: subjects,
+        min_class: parseInt($("tMinClass").value),
+        max_class: parseInt($("tMaxClass").value),
+        available_from: parseInt($("tFrom").value),
+        available_to: parseInt($("tTo").value),
+        max_hours_per_day: maxHours ? parseInt(maxHours) : null,
+        phone: $("tPhone").value,
+      });
+      showMsg("tutorMsg", "Profile saved! Students can now find you. ✅", "ok");
+      await loadTutorProfile();   // refreshes the OPEN/CLOSED box after a first save
+    } catch (e) {
+      showMsg("tutorMsg", e.message, "error");
+    }
+  }
+
+  async function loadTutorProfile() {
+    try {
+      const p = await api("/tutor/profile");
+      $("tQualification").value = p.qualification;
+      $("tBio").value = p.bio || "";
+      $("tPhone").value = p.phone || "";
+      $("tMinClass").value = p.min_class;
+      $("tMaxClass").value = p.max_class;
+      $("tFrom").value = p.available_from;
+      $("tTo").value = p.available_to;
+      $("tMaxHours").value = p.max_hours_per_day || "";
+      document.querySelectorAll("#tSubjects input").forEach(cb => {
+        cb.checked = p.subjects.includes(cb.value);
+      });
+      tutorAccepting = Boolean(p.is_accepting);
+      renderTutorSnapshot(p);
+    } catch (e) {
+      // 404 = no profile yet, that's fine, leave the form empty
+      tutorAccepting = null;
+      renderTutorSnapshot(null);
+    }
+    renderAvailability();
+  }
+
+  function renderTutorSnapshot(profile) {
+    const subjectsBox = $("tutorHomeSubjects");
+    subjectsBox.innerHTML = "";
+    if (!profile) {
+      $("tutorTeachingSummary").textContent = "Complete your teaching profile to show these details.";
+      $("tutorHomeQualification").textContent = "Not added";
+      $("tutorHomeClasses").textContent = "Not set";
+      $("tutorHomeHours").textContent = "Not set";
+      return;
+    }
+
+    $("tutorTeachingSummary").textContent = "Your teaching details are visible to students in matching searches.";
+    $("tutorHomeQualification").textContent = profile.qualification;
+    $("tutorHomeClasses").textContent = "Class " + profile.min_class + " - " + profile.max_class;
+    $("tutorHomeHours").textContent = hourLabel(profile.available_from) + " - " + hourLabel(profile.available_to);
+    profile.subjects.forEach(subject => subjectsBox.appendChild(el("span", "tutor-subject-tag", subject)));
+  }
+
+  // ---------- tutor: inbox ----------
+  async function loadInbox() {
+    try {
+      const [list, trials, tutoring] = await Promise.all([
+        api("/requests/incoming"),
+        api("/trials/incoming"),
+        api("/booking-requests/incoming"),
+      ]);
+      const contactBox = $("inboxContactRequests");
+      const trialsBox = $("inboxTrials");
+      const tutoringBox = $("inboxTutoring");
+      contactBox.innerHTML = "";
+      trialsBox.innerHTML = "";
+      tutoringBox.innerHTML = "";
+      $("inboxContactCount").textContent = list.length;
+      $("inboxTrialCount").textContent = trials.length;
+      $("inboxTutoringCount").textContent = tutoring.length;
+
+      const waiting = list.filter(r => r.status === "pending").length;
+      const waitingTrials = trials.filter(r => r.status === "pending").length;
+      const waitingTutoring = tutoring.filter(r => r.status === "pending").length;
+      $("tutorPendingCount").textContent = waiting + waitingTrials + waitingTutoring;
+      $("tutorRequestTabCount").textContent = waiting + waitingTrials + waitingTutoring;
+      $("tutorAcceptedCount").textContent = list.filter(r => r.status === "accepted").length +
+        trials.filter(r => r.status === "accepted").length +
+        tutoring.filter(r => r.status === "accepted").length;
+      $("inboxSummary").textContent = list.length + trials.length + tutoring.length === 0
+        ? "No requests yet. Students will appear here when they ring your doorbell."
+        : waiting + waitingTrials + waitingTutoring + " waiting for your reply";
+
+      list.forEach(r => {
+        const item = el("div", "req");
+        const top = el("div", "top");
+        top.appendChild(requestPerson(
+          r.student_name, r.student_avatar, el("strong", "", r.student_name + " • " + r.student_area)
+        ));
+
+        if (r.status === "accepted") top.appendChild(el("span", "badge", "Accepted ✅"));
+        else if (r.status === "declined") top.appendChild(el("span", "badge declined", "Declined"));
+        else top.appendChild(el("span", "badge pending", "Waiting ⏳"));
+        item.appendChild(top);
+
+        item.appendChild(el("p", r.message ? "quote" : "muted",
+          r.message ? "“" + r.message + "”" : "(no message)"));
+
+        if (r.status === "pending") {
+          const btns = el("div", "btns");
+          const accept = el("button", "small good", "Accept");
+          const decline = el("button", "small danger", "Decline");
+          accept.onclick = () => respondToRequest(r.id, "accept");
+          decline.onclick = () => showDeclineReasonForm(
+            item, reason => respondToRequest(r.id, "decline", reason)
+          );
+          btns.appendChild(accept);
+          btns.appendChild(decline);
+          item.appendChild(btns);
+        } else if (r.status === "accepted") {
+          appendContactVisibilityControl(
+            item, "/requests/" + r.id + "/contact-visibility",
+            !r.tutor_contact_hidden, "the student", loadInbox
+          );
+        }
+        appendTutorRequestDelete(item, "/requests/" + r.id, r.status, loadInbox);
+        contactBox.appendChild(item);
+      });
+
+      trials.forEach(trial => {
+        const item = el("div", "req");
+        const top = el("div", "top");
+        top.appendChild(requestPerson(
+          trial.student_name, trial.student_avatar,
+          el("strong", "", trial.student_name + " • " + trial.student_area)
+        ));
+        const label = trial.status === "accepted" ? "Confirmed ✅"
+          : trial.status === "declined" ? "Declined" : "Waiting ⏳";
+        const statusClass = trial.status === "accepted" ? "badge"
+          : trial.status === "declined" ? "badge declined" : "badge pending";
+        top.appendChild(el("span", statusClass, label));
+        item.appendChild(top);
+        item.appendChild(el("p", "", "Free trial for " + trial.child_name + " · Class " +
+          trial.class_level + " · " + trial.subject));
+        item.appendChild(el("p", "muted", "Preferred time: " + trial.preferred_date +
+          " at " + trial.preferred_time));
+        item.appendChild(el("p", trial.message ? "quote" : "muted",
+          trial.message ? "“" + trial.message + "”" : "(no message)"));
+        if (trial.status === "accepted") {
+            if (trial.student_contact_hidden) {
+              item.appendChild(el("p", "muted", "Student has hidden their contact details."));
+            } else {
+              const contacts = el("p", "muted", "Student phone: ");
+              if (trial.phone) contacts.appendChild(contactLink("tel", trial.phone));
+              else contacts.appendChild(document.createTextNode("Not provided"));
+              contacts.appendChild(document.createTextNode(" · Student email: "));
+              if (trial.student_email) contacts.appendChild(contactLink("mailto", trial.student_email));
+              else contacts.appendChild(document.createTextNode("Not provided"));
+              item.appendChild(contacts);
+            }
+            appendContactVisibilityControl(
+              item, "/trials/" + trial.id + "/contact-visibility",
+              !trial.tutor_contact_hidden, "the student", loadInbox
+            );
+        } else if (trial.status === "pending") {
+          item.appendChild(el("p", "muted", "Student contact details are shared after you accept the trial."));
+        }
+        if (trial.status === "pending") {
+          const btns = el("div", "btns");
+          const accept = el("button", "small good", "Confirm trial");
+          const decline = el("button", "small danger", "Decline");
+          accept.onclick = () => respondToTrial(trial.id, "accept");
+          decline.onclick = () => showDeclineReasonForm(
+            item, reason => respondToTrial(trial.id, "decline", reason)
+          );
+          btns.appendChild(accept);
+          btns.appendChild(decline);
+          item.appendChild(btns);
+        }
+        appendTutorRequestDelete(item, "/trials/" + trial.id, trial.status, loadInbox);
+        trialsBox.appendChild(item);
+      });
+
+      tutoring.forEach(request => {
+        const item = el("div", "req");
+        const top = el("div", "top");
+        top.appendChild(requestPerson(
+          request.student_name, request.student_avatar,
+          el("strong", "", request.student_name + " • " + request.student_area)
+        ));
+        const label = request.status === "accepted" ? "Accepted ✅"
+          : request.status === "declined" ? "Declined" : "Waiting ⏳";
+        const statusClass = request.status === "accepted" ? "badge"
+          : request.status === "declined" ? "badge declined" : "badge pending";
+        top.appendChild(el("span", statusClass, label));
+        item.appendChild(top);
+        item.appendChild(el("p", "", "Tutoring request for " + request.child_name +
+          " · Class " + request.class_level + " · " + request.subject));
+        item.appendChild(el("p", "muted", "Date range: " +
+          (request.start_date || "Not specified") + " to " +
+          (request.end_date || "Not specified")));
+        item.appendChild(el("p", "muted", "Preferred days: " + request.weekdays +
+          " · Time: " + request.preferred_from + "–" + request.preferred_to));
+        item.appendChild(el("p", request.message ? "quote" : "muted",
+          request.message ? "“" + request.message + "”" : "(no message)"));
+        if (request.status === "accepted") {
+          if (request.student_contact_hidden) {
+            item.appendChild(el("p", "muted", "Student has hidden their contact details."));
+          } else {
+            const contacts = el("p", "muted", "Student phone: ");
+            if (request.student_phone) contacts.appendChild(contactLink("tel", request.student_phone));
+            else contacts.appendChild(document.createTextNode("Not provided"));
+            contacts.appendChild(document.createTextNode(" · Student email: "));
+            if (request.student_email) contacts.appendChild(contactLink("mailto", request.student_email));
+            else contacts.appendChild(document.createTextNode("Not provided"));
+            item.appendChild(contacts);
+          }
+          appendContactVisibilityControl(
+            item, "/booking-requests/" + request.id + "/contact-visibility",
+            !request.tutor_contact_hidden, "the student", loadInbox
+          );
+        } else if (request.status === "pending") {
+          item.appendChild(el("p", "muted", "Student contact details are shared after you accept."));
+          const btns = el("div", "btns");
+          const accept = el("button", "small good", "Accept tutoring request");
+          const decline = el("button", "small danger", "Decline");
+          accept.onclick = () => respondToTutoringRequest(request.id, "accept");
+          decline.onclick = () => showDeclineReasonForm(
+            item, reason => respondToTutoringRequest(request.id, "decline", reason)
+          );
+          btns.appendChild(accept);
+          btns.appendChild(decline);
+          item.appendChild(btns);
+        }
+        appendTutorRequestDelete(
+          item, "/booking-requests/" + request.id, request.status, loadInbox
+        );
+        tutoringBox.appendChild(item);
+      });
+    } catch (e) {
+      showMsg("inboxMsg", e.message, "error");
+    }
+  }
+
+  async function respondToTrial(id, action, reason) {
+    showMsg("inboxMsg", "");
+    try {
+      await api("/trials/" + id + "/respond", "POST", { action, reason: reason || "" });
+      await loadInbox();
+    } catch (e) {
+      showMsg("inboxMsg", e.message, "error");
+    }
+  }
+
+  async function respondToTutoringRequest(id, action, reason) {
+    showMsg("inboxMsg", "");
+    try {
+      await api("/booking-requests/" + id + "/respond", "POST", { action, reason: reason || "" });
+      await loadInbox();
+    } catch (e) {
+      showMsg("inboxMsg", e.message, "error");
+    }
+  }
+
+  async function respondToRequest(id, action, reason) {
+    showMsg("inboxMsg", "");
+    try {
+      await api("/requests/" + id + "/respond", "POST", { action: action, reason: reason || "" });
+      await loadInbox();
+    } catch (e) {
+      showMsg("inboxMsg", e.message, "error");
+    }
+  }
+
+  // ---------- starting the app ----------
+  async function startApp() {
+    try {
+      const me = await api("/me");
+      applyUser(me);
+      $("userInfo").classList.remove("hidden");   // avatar appears only now
+
+      if (me.role === "student") {
+        showOnly("studentView");
+        showStudentTab("studentHomeTab");
+        await loadMyRequests();
+      } else {
+        showOnly("tutorView");
+        showTutorTab("tutorHomeTab");
+        await loadTutorProfile();
+        await loadInbox();
+      }
+      scheduleRequestExpiryRefresh();
+    } catch (e) {
+      // If the wristband was invalid, api() already sent us to login with a message.
+      // For any other failure (e.g. server down), reset to the login page.
+      if (token) await logout();
+    }
+  }
+
+  function scheduleRequestExpiryRefresh() {
+    window.clearTimeout(requestExpiryTimer);
+    const nextRefresh = new Date();
+    nextRefresh.setHours(24, 0, 1, 0);
+    requestExpiryTimer = window.setTimeout(async () => {
+      if (currentUser && currentUser.role === "student") await loadMyRequests();
+      else if (currentUser && currentUser.role === "tutor") await loadInbox();
+      if (currentUser) scheduleRequestExpiryRefresh();
+    }, nextRefresh.getTime() - Date.now());
+  }
+
+  async function init() {
+    // keep the avatar menu hidden until a real login session exists
+    $("userInfo").classList.add("hidden");
+    $("studentHeaderNav").classList.add("hidden");
+    $("tutorHeaderNav").classList.add("hidden");
+    $("editBox").classList.add("hidden");
+
+    // fill every dropdown once
+    fillSelect($("fSubject"), [["", "Any subject"], ...SUBJECTS.map(s => [s, s])], "");
+    fillSelect($("fClass"), [["", "Any class"], ...classOptions()], "");
+    fillSelect($("fFrom"), [["", "Any time"], ...hourOptions()], "");
+    fillSelect($("fTo"), [["", "Any time"], ...hourOptions()], "");
+    renderHomeSubjects();
+
+    fillSelect($("tMinClass"), classOptions(), 6);
+    fillSelect($("tMaxClass"), classOptions(), 10);
+    fillSelect($("tFrom"), hourOptions(), 16);
+    fillSelect($("tTo"), hourOptions(), 20);
+
+    // subject checkboxes for tutors
+    const box = $("tSubjects");
+    SUBJECTS.forEach(s => {
+      const label = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = s;
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(s));
+      box.appendChild(label);
+    });
+
+    const weekdayBox = $("bookingWeekdays");
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(day => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = day;
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(day.slice(0, 3)));
+      weekdayBox.appendChild(label);
+    });
+
+    // area dropdowns (signup + edit profile)
+    try {
+      const areas = await api("/areas");
+      const areaOptions = areas.map(a => [a.id, a.name]);
+      fillSelect($("signupArea"), areaOptions);
+      fillSelect($("editArea"), areaOptions);
+    } catch (e) {
+      showMsg("authMsg", "Could not load areas. Is the server running?", "error");
+    }
+
+    if (token) {
+      await startApp();
+    } else {
+      showOnly("authView");
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
